@@ -1,2 +1,2 @@
-# Secret config — never commit real keys
-config.js
+# config.example.js only — config.js is committed (anon key is safe to expose)
+config.example.js
