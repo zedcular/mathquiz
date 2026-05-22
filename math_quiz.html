@@ -121,10 +121,36 @@
     transform-origin: left;
     transition: transform 0.3s;
   }
-  .chapter-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-  .chapter-card:hover::before { transform: scaleX(1); }
-  .chapter-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); }
+  /* Unselected — dimmed so selected cards stand out */
+  .chapter-card:not(.selected) {
+    opacity: 0.4;
+    filter: grayscale(0.3);
+  }
+  .chapter-card:not(.selected):hover {
+    opacity: 0.75;
+    filter: none;
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .chapter-card:not(.selected):hover::before { transform: scaleX(1); }
+
+  /* Selected — pop with accent color + checkmark */
+  .chapter-card.selected {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.18);
+    box-shadow: 0 0 0 1px rgba(108,99,255,0.25), 0 4px 16px rgba(108,99,255,0.15);
+  }
   .chapter-card.selected::before { transform: scaleX(1); }
+  .chapter-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 12px; right: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .chapter-card.selected:hover { transform: translateY(-3px); }
+
   .ch-number {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -133,7 +159,57 @@
     margin-bottom: 8px;
   }
   .ch-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-  .ch-count { font-size: 12px; color: var(--muted); }
+  .ch-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+  .ch-progress-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .ch-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  .ch-accuracy {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+  }
+
+  .ch-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.38s forwards;
+  }
+  .ch-controls-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .ch-ctrl-btn {
+    padding: 5px 14px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ch-ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .mode-row {
     display: flex; gap: 12px; margin-bottom: 32px;
@@ -215,7 +291,7 @@
 
   .progress-bar-wrap {
     max-width: 800px;
-    margin: 0 auto 32px;
+    margin: 0 auto 8px;
     height: 4px;
     background: var(--border);
     border-radius: 4px;
@@ -226,6 +302,27 @@
     background: linear-gradient(90deg, var(--accent), var(--accent2));
     border-radius: 4px;
     transition: width 0.4s ease;
+  }
+  .rw-bar-wrap {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+  .rw-bar-correct {
+    height: 100%;
+    background: var(--correct);
+    transition: width 0.35s ease;
+    flex-shrink: 0;
+  }
+  .rw-bar-wrong {
+    height: 100%;
+    background: var(--wrong);
+    transition: width 0.35s ease;
+    flex-shrink: 0;
   }
 
   .question-wrap {
@@ -683,6 +780,84 @@
   .toast-visible { opacity: 1; transform: translateY(0); }
   .toast-success { background: rgba(67,233,123,0.15); border: 1px solid var(--correct); color: var(--correct); }
   .toast-error   { background: rgba(255,71,87,0.15);  border: 1px solid var(--wrong);   color: var(--wrong);   }
+
+  /* ── PROGRESS SECTION ── */
+  .progress-section {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 36px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.7s forwards;
+  }
+  .progress-heading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .progress-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .prog-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .prog-val {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .prog-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    gap: 12px;
+  }
+  .recent-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    min-width: 48px;
+    text-align: right;
+  }
+  .recent-meta { color: var(--muted); font-size: 12px; }
+  .recent-mode {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(108,99,255,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(108,99,255,0.25);
+    white-space: nowrap;
+  }
 </style>
 </head>
 <body>
@@ -731,6 +906,13 @@
   <h1 class="home-title">Full Book<br><span>MCQ Practice</span></h1>
   <p class="home-sub">583 questions across all chapters · Track your progress · Review mistakes</p>
 
+  <div class="ch-controls">
+    <span class="ch-controls-label">Chapters</span>
+    <div style="display:flex;gap:8px">
+      <button class="ch-ctrl-btn" onclick="selectAllChapters()">Select All</button>
+      <button class="ch-ctrl-btn" onclick="selectNoneChapters()">Clear</button>
+    </div>
+  </div>
   <div class="chapter-grid" id="chapterGrid"></div>
 
   <div class="mode-row">
@@ -740,6 +922,25 @@
   </div>
 
   <button class="start-btn" onclick="startQuiz()">START QUIZ →</button>
+
+  <div class="progress-section" id="progressSection" style="display:none">
+    <div class="progress-heading">Your Progress</div>
+    <div class="progress-stats">
+      <div class="prog-card">
+        <div class="prog-val" id="progTotal">—</div>
+        <div class="prog-label">Quizzes Taken</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-val" id="progBest">—</div>
+        <div class="prog-label">Best Score</div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-val" id="progAvg">—</div>
+        <div class="prog-label">Average</div>
+      </div>
+    </div>
+    <div class="recent-list" id="recentList"></div>
+  </div>
 </div>
 
 <!-- QUIZ -->
@@ -757,6 +958,10 @@
   </div>
   <div class="progress-bar-wrap">
     <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="rw-bar-wrap">
+    <div class="rw-bar-correct" id="rwBarCorrect" style="width:0%"></div>
+    <div class="rw-bar-wrong" id="rwBarWrong" style="width:0%"></div>
   </div>
   <div class="q-nav-dots" id="qNavDots"></div>
   <div class="question-wrap">
@@ -934,6 +1139,7 @@ function enterQuiz(email) {
   console.log('[enterQuiz] calling showScreen home');
   showScreen('home');
   console.log('[enterQuiz] done — active screen:', document.querySelector('.screen.active')?.id);
+  loadProgress();
 }
 
 // ── Device fingerprinting ──
@@ -1576,7 +1782,7 @@ const CHAPTERS = [
 // ═══════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════
-let selectedChapters = new Set(CHAPTERS.map(c => c.id));
+let selectedChapters = new Set();
 let quizMode = 'all'; // 'all', 'shuffle', 'practice'
 let currentQuestions = [];
 let currentIndex = 0;
@@ -1589,18 +1795,60 @@ let shuffleMode = false;
 // ═══════════════════════════════════════════════
 // HOME
 // ═══════════════════════════════════════════════
+function getChapterStats() {
+  if (!currentUser) return {};
+  try { return JSON.parse(localStorage.getItem(`ch_stats_${currentUser.email}`) || '{}'); }
+  catch { return {}; }
+}
+
+function updateChapterStats() {
+  if (!currentUser) return;
+  const stats = getChapterStats();
+  Object.keys(answers).forEach(idx => {
+    const q = currentQuestions[parseInt(idx)];
+    const ch = CHAPTERS.find(c => c.name === q.chapter);
+    if (!ch) return;
+    const key = String(ch.id);
+    if (!stats[key]) stats[key] = { correct: 0, total: 0 };
+    stats[key].total++;
+    if (answers[idx] === q.ans) stats[key].correct++;
+  });
+  localStorage.setItem(`ch_stats_${currentUser.email}`, JSON.stringify(stats));
+}
+
 function buildChapterGrid() {
+  const stats = getChapterStats();
   const grid = document.getElementById('chapterGrid');
   grid.innerHTML = '';
   CHAPTERS.forEach(ch => {
     const card = document.createElement('div');
-    card.className = 'chapter-card selected';
+    card.className = 'chapter-card';
     card.id = `ch-${ch.id}`;
     card.onclick = () => toggleChapter(ch.id, card);
+
+    const s = stats[String(ch.id)];
+    let barHTML;
+    if (s && s.total > 0) {
+      const pct = Math.round((s.correct / s.total) * 100);
+      const color = pct >= 75 ? 'var(--correct)' : pct >= 50 ? 'var(--pending)' : 'var(--wrong)';
+      barHTML = `
+        <div class="ch-progress-wrap">
+          <div class="ch-progress-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <div class="ch-accuracy" style="color:${color}">${pct}% · ${s.correct}/${s.total} correct</div>`;
+    } else {
+      barHTML = `
+        <div class="ch-progress-wrap">
+          <div class="ch-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="ch-accuracy" style="color:var(--muted)">Not attempted</div>`;
+    }
+
     card.innerHTML = `
       <div class="ch-number">${ch.tag}</div>
       <div class="ch-name">${ch.name}</div>
       <div class="ch-count">${ch.questions.length} questions</div>
+      ${barHTML}
     `;
     grid.appendChild(card);
   });
@@ -1614,6 +1862,22 @@ function toggleChapter(id, card) {
     selectedChapters.add(id);
     card.classList.add('selected');
   }
+}
+
+function selectAllChapters() {
+  CHAPTERS.forEach(ch => {
+    selectedChapters.add(ch.id);
+    const card = document.getElementById(`ch-${ch.id}`);
+    if (card) card.classList.add('selected');
+  });
+}
+
+function selectNoneChapters() {
+  CHAPTERS.forEach(ch => {
+    selectedChapters.delete(ch.id);
+    const card = document.getElementById(`ch-${ch.id}`);
+    if (card) card.classList.remove('selected');
+  });
 }
 
 function setMode(mode) {
@@ -1733,6 +1997,7 @@ function renderQuestion() {
   document.getElementById('nextBtn').textContent = currentIndex === total - 1 ? 'Finish →' : 'Next →';
 
   updateDots();
+  updateRWBar();
 }
 
 function selectAnswer(chosen) {
@@ -1752,6 +2017,7 @@ function selectAnswer(chosen) {
   document.getElementById('scoreCorrect').textContent = correctCount;
   document.getElementById('scoreWrong').textContent = wrongCount;
   updateDots();
+  updateRWBar();
 }
 
 function applyAnswerState(chosen, correct) {
@@ -1774,6 +2040,13 @@ function applyAnswerState(chosen, correct) {
   }
 }
 
+function updateRWBar() {
+  const total = currentQuestions.length;
+  if (!total) return;
+  document.getElementById('rwBarCorrect').style.width = `${(correctCount / total) * 100}%`;
+  document.getElementById('rwBarWrong').style.width   = `${(wrongCount  / total) * 100}%`;
+}
+
 function navigate(dir) {
   const total = currentQuestions.length;
   const newIndex = currentIndex + dir;
@@ -1792,9 +2065,67 @@ function jumpTo(i) {
 }
 
 // ═══════════════════════════════════════════════
+// PROGRESS TRACKING
+// ═══════════════════════════════════════════════
+function saveAttempt() {
+  if (!currentUser) return;
+  const total = currentQuestions.length;
+  if (total === 0) return;
+  const pct  = Math.round((correctCount / total) * 100);
+  const mode = practiceMode ? 'practice' : shuffleMode ? 'shuffle' : 'normal';
+  db.from('quiz_attempts').insert({
+    user_email:  currentUser.email,
+    mode,
+    total,
+    correct:     correctCount,
+    score_pct:   pct,
+    chapter_ids: [...selectedChapters]
+  });
+  updateChapterStats();
+}
+
+async function loadProgress() {
+  const section = document.getElementById('progressSection');
+  const { data, error } = await db
+    .from('quiz_attempts')
+    .select('score_pct, correct, total, mode, created_at')
+    .eq('user_email', currentUser.email)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error || !data || data.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const best = Math.max(...data.map(r => r.score_pct));
+  const avg  = Math.round(data.reduce((s, r) => s + r.score_pct, 0) / data.length);
+
+  document.getElementById('progTotal').textContent = data.length;
+  document.getElementById('progBest').textContent  = best + '%';
+  document.getElementById('progAvg').textContent   = avg + '%';
+
+  const recent = data.slice(0, 5);
+  document.getElementById('recentList').innerHTML = recent.map(r => {
+    const scoreColor = r.score_pct >= 75 ? 'var(--correct)' : r.score_pct >= 50 ? 'var(--pending)' : 'var(--wrong)';
+    const date = new Date(r.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `
+      <div class="recent-item">
+        <span class="recent-meta">${date}</span>
+        <span class="recent-mode">${r.mode.toUpperCase()}</span>
+        <span class="recent-meta">${r.correct}/${r.total} correct</span>
+        <span class="recent-score" style="color:${scoreColor}">${r.score_pct}%</span>
+      </div>`;
+  }).join('');
+
+  section.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════
 // RESULTS
 // ═══════════════════════════════════════════════
 function showResults() {
+  saveAttempt();
   showScreen('results');
   const total = currentQuestions.length;
   const answered = Object.keys(answers).length;
@@ -1857,6 +2188,7 @@ function retryWrong() {
 
 function goHome() {
   showScreen('home');
+  loadProgress();
 }
 
 // ═══════════════════════════════════════════════
