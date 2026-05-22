@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2nd Year Math — Full Book MCQs</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
+<script src="config.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -434,12 +436,297 @@
     color: var(--accent);
     border: 1px solid rgba(108,99,255,0.3);
   }
+
+  /* ── USER BAR ── */
+  .user-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    box-sizing: border-box;
+  }
+  .user-email {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+  #home  { padding-top: 72px; }
+  #quiz  { padding-top: 52px; }
+  #results { padding-top: 72px; }
+
+  /* ── LOGIN SCREEN ── */
+  #login {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .login-box {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .login-title {
+    font-size: clamp(32px,5vw,48px);
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .login-sub {
+    color: var(--muted);
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s forwards;
+  }
+  .login-card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+  .login-form { display: flex; flex-direction: column; gap: 14px; }
+  .login-input {
+    width: 100%;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-input::placeholder { color: var(--muted); }
+  .login-btn {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .login-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
+  .login-btn:disabled { opacity: 0.55; cursor: default; }
+  .login-error {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: rgba(255,71,87,0.1);
+    border: 1px solid var(--wrong);
+    border-radius: 8px;
+    color: var(--wrong);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── ADMIN SCREEN ── */
+  #admin { min-height: 100vh; padding: 64px 20px 40px; position: relative; z-index: 1; }
+  .admin-wrap { max-width: 860px; margin: 0 auto; }
+  .admin-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .admin-title { font-size: 32px; font-weight: 800; margin-top: 6px; }
+  .admin-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .admin-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 20px;
+  }
+  .admin-add-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+  .admin-add-btn {
+    flex-shrink: 0;
+    padding: 13px 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .admin-add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(108,99,255,0.35); }
+  .admin-list { display: flex; flex-direction: column; gap: 8px; }
+  .admin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    gap: 12px;
+  }
+  .admin-row-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .admin-email { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .admin-meta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .admin-badge {
+    flex-shrink: 0;
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 20px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .admin-delete-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,71,87,0.4);
+    background: rgba(255,71,87,0.08);
+    color: var(--wrong);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .admin-delete-btn:hover { background: var(--wrong); color: white; border-color: var(--wrong); }
+  .admin-device-group {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-device-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .admin-device-email {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .admin-device-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    margin-left: 16px;
+    gap: 12px;
+  }
+  .admin-device-label { font-size: 13px; font-weight: 600; }
+  .admin-loading, .admin-empty { padding: 20px; text-align: center; font-size: 14px; color: var(--muted); }
+  .admin-empty { font-style: italic; }
+  .admin-err { padding: 20px; text-align: center; font-size: 14px; color: var(--wrong); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s ease;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast-visible { opacity: 1; transform: translateY(0); }
+  .toast-success { background: rgba(67,233,123,0.15); border: 1px solid var(--correct); color: var(--correct); }
+  .toast-error   { background: rgba(255,71,87,0.15);  border: 1px solid var(--wrong);   color: var(--wrong);   }
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="login" class="screen active">
+  <div class="login-box">
+    <div class="home-badge" style="opacity:0;animation:fadeUp 0.6s 0.1s forwards">2nd Year Mathematics</div>
+    <h1 class="login-title">Sign In</h1>
+    <p class="login-sub">Enter your email and password to access the quiz.</p>
+
+    <div class="login-card">
+      <div class="login-form" id="loginForm">
+        <input
+          type="email"
+          id="emailInput"
+          class="login-input"
+          placeholder="your@email.com"
+          onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()"
+        />
+        <input
+          type="password"
+          id="passwordInput"
+          class="login-input"
+          placeholder="Password"
+          onkeydown="if(event.key==='Enter')signIn()"
+        />
+        <button id="signInBtn" class="login-btn" onclick="signIn()">Sign In →</button>
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+</div>
+
 <!-- HOME -->
-<div id="home" class="screen active">
+<div id="home" class="screen">
+  <div class="user-bar">
+    <span class="user-email" id="userEmailDisplay"></span>
+    <div style="display:flex;gap:8px">
+      <button id="adminBtn" class="nav-btn" onclick="openAdmin()" style="display:none;font-size:12px;padding:6px 14px">Admin Panel</button>
+      <button class="nav-btn" onclick="logout()" style="font-size:12px;padding:6px 14px">Sign Out</button>
+    </div>
+  </div>
   <div class="home-badge">2nd Year Mathematics</div>
   <h1 class="home-title">Full Book<br><span>MCQ Practice</span></h1>
   <p class="home-sub">583 questions across all chapters · Track your progress · Review mistakes</p>
@@ -511,7 +798,333 @@
   </div>
 </div>
 
+<!-- ADMIN -->
+<div id="admin" class="screen">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <div class="home-badge" style="margin-bottom:8px">Super Admin</div>
+        <h1 class="admin-title">Access Management</h1>
+      </div>
+      <button class="nav-btn" onclick="goHome()">← Back to Quiz</button>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Allowed Users</div>
+      <div class="admin-add-row">
+        <input type="email" id="newEmailInput" class="login-input" placeholder="newuser@email.com" style="flex:1"
+          onkeydown="if(event.key==='Enter')addAllowedEmail()" />
+        <button class="admin-add-btn" onclick="addAllowedEmail()">Add Email</button>
+      </div>
+      <div id="allowedUsersList" class="admin-list">
+        <div class="admin-loading">Loading…</div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Device Registrations</div>
+      <div id="devicesList" class="admin-list">
+        <div class="admin-loading">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+// ═══════════════════════════════════════════════
+// SUPABASE CONFIG — loaded from config.js (gitignored)
+// ═══════════════════════════════════════════════
+if (!window.APP_CONFIG) throw new Error('config.js is missing. Copy config.example.js → config.js and fill in your Supabase credentials.');
+
+const SUPABASE_URL      = window.APP_CONFIG.supabaseUrl;
+const SUPABASE_ANON_KEY = window.APP_CONFIG.supabaseAnonKey;
+const SUPERUSER_EMAIL   = 'm.ahmadd447@gmail.com';
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser  = null;
+let signingIn    = false; // guard against concurrent handleSignedIn calls
+
+// Single auth listener — handles initial load, magic-link redirect, and sign-out.
+// INITIAL_SESSION fires once on subscription with the current session (or null).
+// SIGNED_IN fires when the magic-link hash is processed.
+// Removing the separate getSession() IIFE prevents the race condition where both
+// paths call handleSignedIn() simultaneously and one hits the UNIQUE device constraint,
+// errors out, and calls signOut() — which sent the user back to login forever.
+db.auth.onAuthStateChange(async (event, session) => {
+  console.log('[AUTH]', event, session ? 'has session' : 'no session');
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    signingIn   = false;
+    showScreen('login');
+    const errEl = document.getElementById('loginError');
+    if (!errEl || errEl.style.display === 'none') resetLoginForm();
+    return;
+  }
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    console.log('[AUTH] signingIn:', signingIn, 'currentUser:', !!currentUser);
+    if (signingIn || currentUser) { console.log('[AUTH] skipping — already handled'); return; }
+    signingIn   = true;
+    currentUser = session.user;
+    await handleSignedIn();
+    signingIn   = false;
+    return;
+  }
+  if (event === 'INITIAL_SESSION' && !session) {
+    showScreen('login');
+  }
+});
+
+async function handleSignedIn() {
+  const email = currentUser.email;
+  console.log('[handleSignedIn] email:', email);
+
+  // With password auth, access is gated by who has a Supabase Auth account.
+  // We still enforce a 2-device limit via user_devices.
+  const fingerprint = await getDeviceFingerprint();
+  const label       = getDeviceLabel();
+  console.log('[handleSignedIn] fingerprint:', fingerprint);
+
+  const { data: devices, error: devicesErr } = await db
+    .from('user_devices')
+    .select('*')
+    .eq('user_email', email);
+  console.log('[handleSignedIn] devices:', devices, 'error:', devicesErr);
+
+  // If device query fails, let the user in rather than blocking them.
+  if (devicesErr) {
+    console.log('[handleSignedIn] device query failed — entering quiz anyway');
+    enterQuiz(email);
+    return;
+  }
+
+  const known = devices?.find(d => d.device_fingerprint === fingerprint);
+  console.log('[handleSignedIn] known device:', !!known);
+
+  if (known) {
+    db.from('user_devices')
+      .update({ last_seen: new Date().toISOString() })
+      .eq('id', known.id);
+    console.log('[handleSignedIn] known device — entering quiz');
+    enterQuiz(email);
+  } else if ((devices?.length || 0) < 2) {
+    const { error } = await db.from('user_devices').insert({
+      user_email:         email,
+      device_fingerprint: fingerprint,
+      device_label:       label
+    });
+    console.log('[handleSignedIn] device insert error:', error);
+    if (error && error.code !== '23505') {
+      console.log('[handleSignedIn] insert failed — entering quiz anyway');
+    }
+    enterQuiz(email);
+  } else {
+    console.log('[handleSignedIn] device limit reached');
+    showLoginError('Device limit reached (2 / 2). Contact the admin to free a slot, then sign in again.');
+    await db.auth.signOut();
+  }
+}
+
+function enterQuiz(email) {
+  console.log('[enterQuiz] called with', email);
+  document.getElementById('userEmailDisplay').textContent = email;
+  document.getElementById('adminBtn').style.display =
+    email === SUPERUSER_EMAIL ? 'inline-block' : 'none';
+  console.log('[enterQuiz] building chapter grid');
+  buildChapterGrid();
+  console.log('[enterQuiz] calling showScreen home');
+  showScreen('home');
+  console.log('[enterQuiz] done — active screen:', document.querySelector('.screen.active')?.id);
+}
+
+// ── Device fingerprinting ──
+async function getDeviceFingerprint() {
+  const raw = [
+    navigator.userAgent,
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.language,
+    navigator.platform
+  ].join('|');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getDeviceLabel() {
+  const ua  = navigator.userAgent;
+  const res = screen.width + 'x' + screen.height;
+  if (/iPhone/i.test(ua))        return 'iPhone';
+  if (/iPad/i.test(ua))          return 'iPad';
+  if (/Android.*Mobile/i.test(ua)) return 'Android Phone';
+  if (/Android/i.test(ua))       return 'Android Tablet';
+  if (/Windows/i.test(ua))       return 'Windows PC (' + res + ')';
+  if (/Mac/i.test(ua))           return 'Mac (' + res + ')';
+  if (/Linux/i.test(ua))         return 'Linux (' + res + ')';
+  return 'Browser (' + res + ')';
+}
+
+// ── Login UI ──
+async function signIn() {
+  const email    = document.getElementById('emailInput').value.trim().toLowerCase();
+  const password = document.getElementById('passwordInput').value;
+  const btn      = document.getElementById('signInBtn');
+
+  if (!email || !email.includes('@')) {
+    showLoginError('Please enter a valid email address.');
+    return;
+  }
+  if (!password) {
+    showLoginError('Please enter your password.');
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = 'Signing in…';
+  document.getElementById('loginError').style.display = 'none';
+
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  console.log('[signIn] result error:', error);
+
+  btn.disabled    = false;
+  btn.textContent = 'Sign In →';
+
+  if (error) {
+    showLoginError('Invalid email or password: ' + error.message);
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent   = msg;
+  el.style.display = 'block';
+}
+
+function resetLoginForm() {
+  const err = document.getElementById('loginError');
+  const btn = document.getElementById('signInBtn');
+  const emailInp = document.getElementById('emailInput');
+  const passInp  = document.getElementById('passwordInput');
+  if (err)      err.style.display = 'none';
+  if (emailInp) emailInp.value    = '';
+  if (passInp)  passInp.value     = '';
+  if (btn)      { btn.disabled = false; btn.textContent = 'Sign In →'; }
+}
+
+async function logout() {
+  await db.auth.signOut();
+}
+
+// ── Admin Panel ──
+async function openAdmin() {
+  showScreen('admin');
+  loadAllowedUsers();
+  loadDevices();
+}
+
+async function loadAllowedUsers() {
+  const list = document.getElementById('allowedUsersList');
+  list.innerHTML = '<div class="admin-loading">Loading…</div>';
+
+  const { data, error } = await db
+    .from('allowed_users')
+    .select('*')
+    .order('added_at', { ascending: true });
+
+  if (error) { list.innerHTML = '<div class="admin-err">Failed to load users.</div>'; return; }
+  if (!data.length) { list.innerHTML = '<div class="admin-empty">No users added yet.</div>'; return; }
+
+  list.innerHTML = data.map(u => `
+    <div class="admin-row" data-email="${u.email.replace(/"/g,'&quot;')}">
+      <div class="admin-row-info">
+        <span class="admin-email">${u.email}</span>
+        <span class="admin-meta">Added ${new Date(u.added_at).toLocaleDateString()}</span>
+      </div>
+      ${u.email === SUPERUSER_EMAIL
+        ? '<span class="admin-badge">Super Admin</span>'
+        : '<button class="admin-delete-btn" onclick="removeAllowedEmail(this)">Remove</button>'}
+    </div>
+  `).join('');
+}
+
+async function addAllowedEmail() {
+  const input = document.getElementById('newEmailInput');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) return;
+
+  const { error } = await db.from('allowed_users').insert({ email, added_by: currentUser.email });
+  if (error) {
+    showToast(error.code === '23505' ? 'Email already exists.' : 'Failed to add email.', 'error');
+    return;
+  }
+  input.value = '';
+  showToast('Email added.', 'success');
+  loadAllowedUsers();
+}
+
+async function removeAllowedEmail(btn) {
+  const email = btn.closest('.admin-row').dataset.email;
+  if (!confirm('Remove ' + email + ' from allowed users?')) return;
+  const { error } = await db.from('allowed_users').delete().eq('email', email);
+  if (error) { showToast('Failed to remove.', 'error'); return; }
+  showToast('Email removed.', 'success');
+  loadAllowedUsers();
+}
+
+async function loadDevices() {
+  const list = document.getElementById('devicesList');
+  list.innerHTML = '<div class="admin-loading">Loading…</div>';
+
+  const { data, error } = await db
+    .from('user_devices')
+    .select('*')
+    .order('user_email')
+    .order('last_seen', { ascending: false });
+
+  if (error) { list.innerHTML = '<div class="admin-err">Failed to load devices.</div>'; return; }
+  if (!data.length) { list.innerHTML = '<div class="admin-empty">No devices registered yet.</div>'; return; }
+
+  const groups = {};
+  data.forEach(d => { (groups[d.user_email] = groups[d.user_email] || []).push(d); });
+
+  list.innerHTML = Object.entries(groups).map(([email, devs]) => `
+    <div class="admin-device-group">
+      <div class="admin-device-email">
+        ${email}
+        <span class="admin-meta">${devs.length}/2 slots used</span>
+      </div>
+      ${devs.map(d => `
+        <div class="admin-device-row" data-device-id="${d.id}">
+          <div class="admin-row-info">
+            <span class="admin-device-label">${d.device_label}</span>
+            <span class="admin-meta">Last seen: ${new Date(d.last_seen).toLocaleDateString()}</span>
+          </div>
+          <button class="admin-delete-btn" onclick="revokeDevice(this)">Revoke</button>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+async function revokeDevice(btn) {
+  const id = btn.closest('.admin-device-row').dataset.deviceId;
+  if (!confirm('Revoke this device? The user will need to re-register it on next login.')) return;
+  const { error } = await db.from('user_devices').delete().eq('id', id);
+  if (error) { showToast('Failed to revoke.', 'error'); return; }
+  showToast('Device revoked.', 'success');
+  loadDevices();
+}
+
+function showToast(msg, type) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('toast-visible'), 10);
+  setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
 // ═══════════════════════════════════════════════
 // DATA — All chapters & questions
 // ═══════════════════════════════════════════════
@@ -1249,14 +1862,20 @@ function goHome() {
 // ═══════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════
+const SCREEN_DISPLAY = { login: 'flex', home: 'flex', quiz: 'block', results: 'flex', admin: 'block' };
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.display = SCREEN_DISPLAY[id] || 'block';
+  window.scrollTo(0, 0);
 }
 
 // ── INIT ──
-buildChapterGrid();
+// Chapter grid is built inside enterQuiz() after successful auth.
 </script>
 </body>
 </html>
