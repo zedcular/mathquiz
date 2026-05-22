@@ -490,6 +490,57 @@
 
   .result-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
+  /* ── RESULTS PROGRESS BAR ── */
+  .result-bar-wrap {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 32px;
+  }
+  .result-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rbl-correct { color: var(--correct); }
+  .rbl-wrong   { color: var(--wrong); }
+  .rbl-skip    { color: var(--muted); }
+  .result-bar-track {
+    height: 14px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+  }
+  .rbt-correct {
+    height: 100%;
+    background: var(--correct);
+    transition: width 0.6s ease;
+    flex-shrink: 0;
+  }
+  .rbt-wrong {
+    height: 100%;
+    background: var(--wrong);
+    transition: width 0.6s ease;
+    flex-shrink: 0;
+  }
+  .rbt-skip {
+    height: 100%;
+    background: var(--border);
+    transition: width 0.6s ease;
+    flex-shrink: 0;
+  }
+  .result-bar-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
@@ -994,6 +1045,19 @@
       <div class="stat-val" id="statWrong" style="color:var(--wrong)">0</div>
       <div class="stat-label">Wrong</div>
     </div>
+  </div>
+  <div class="result-bar-wrap">
+    <div class="result-bar-labels">
+      <span class="rbl-correct" id="rblCorrect">✓ 0 correct</span>
+      <span class="rbl-wrong"   id="rblWrong">✗ 0 wrong</span>
+      <span class="rbl-skip"    id="rblSkip">— 0 skipped</span>
+    </div>
+    <div class="result-bar-track">
+      <div class="rbt-correct" id="rbtCorrect" style="width:0%"></div>
+      <div class="rbt-wrong"   id="rbtWrong"   style="width:0%"></div>
+      <div class="rbt-skip"    id="rbtSkip"    style="width:0%"></div>
+    </div>
+    <div class="result-bar-sub" id="rbtSub"></div>
   </div>
   <div class="review-section" id="reviewSection"></div>
   <div class="result-btns">
@@ -2142,6 +2206,21 @@ function showResults() {
   document.getElementById('statScore').textContent = pct + '%';
   document.getElementById('statCorrect').textContent = correctCount;
   document.getElementById('statWrong').textContent = wrongCount;
+
+  // Results breakdown bar
+  const skipped = total - answered;
+  const correctPct  = total > 0 ? (correctCount / total) * 100 : 0;
+  const wrongPct    = total > 0 ? (wrongCount   / total) * 100 : 0;
+  const skippedPct  = total > 0 ? (skipped      / total) * 100 : 0;
+  document.getElementById('rbtCorrect').style.width = correctPct + '%';
+  document.getElementById('rbtWrong').style.width   = wrongPct   + '%';
+  document.getElementById('rbtSkip').style.width    = skippedPct + '%';
+  document.getElementById('rblCorrect').textContent = `✓ ${correctCount} correct`;
+  document.getElementById('rblWrong').textContent   = `✗ ${wrongCount} wrong`;
+  document.getElementById('rblSkip').textContent    = `— ${skipped} skipped`;
+  document.getElementById('rbtSub').textContent     = `${answered} of ${total} attempted`;
+  if (skipped === 0) document.getElementById('rblSkip').style.display = 'none';
+  else document.getElementById('rblSkip').style.display = '';
 
   // Wrong review
   const review = document.getElementById('reviewSection');
