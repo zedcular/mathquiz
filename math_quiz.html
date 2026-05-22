@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2nd Year Math — Full Book MCQs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #252535;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --correct: #43e97b;
+    --wrong: #ff4757;
+    --pending: #ffa500;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* ── HOME SCREEN ── */
+  #home {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .home-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border: 1px solid var(--accent);
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+  .home-title {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    text-align: center;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .home-title span { color: var(--accent); }
+  .home-sub {
+    color: var(--muted);
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s forwards;
+  }
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+  .chapter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .chapter-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .chapter-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .chapter-card:hover::before { transform: scaleX(1); }
+  .chapter-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); }
+  .chapter-card.selected::before { transform: scaleX(1); }
+  .ch-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .ch-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .ch-count { font-size: 12px; color: var(--muted); }
+
+  .mode-row {
+    display: flex; gap: 12px; margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.6s 0.5s forwards;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .mode-btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .mode-btn.selected { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .start-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz { min-height: 100vh; padding: 0 20px; }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    max-width: 800px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 8px 16px; border-radius: 6px;
+    cursor: pointer; font-family: 'Syne', sans-serif;
+    font-size: 13px; transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--text); color: var(--text); }
+
+  .progress-info {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .q-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--muted);
+  }
+  .q-counter span { color: var(--text); font-weight: 500; }
+
+  .score-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .score-pill .correct-c { color: var(--correct); }
+  .score-pill .wrong-c { color: var(--wrong); }
+
+  .progress-bar-wrap {
+    max-width: 800px;
+    margin: 0 auto 32px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .question-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .chapter-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .question-text {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    color: var(--text);
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 560px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+  .option-btn:disabled { cursor: default; }
+
+  .opt-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    min-width: 24px;
+    padding-top: 1px;
+  }
+  .opt-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .option-btn.correct { border-color: var(--correct); background: rgba(67,233,123,0.12); }
+  .option-btn.correct .opt-label { color: var(--correct); }
+  .option-btn.wrong { border-color: var(--wrong); background: rgba(255,71,87,0.12); }
+  .option-btn.wrong .opt-label { color: var(--wrong); }
+  .option-btn.show-correct { border-color: var(--correct); background: rgba(67,233,123,0.06); }
+
+  .feedback-bar {
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .feedback-bar.correct-fb { background: rgba(67,233,123,0.15); border: 1px solid var(--correct); color: var(--correct); display: flex; }
+  .feedback-bar.wrong-fb { background: rgba(255,71,87,0.15); border: 1px solid var(--wrong); color: var(--wrong); display: flex; }
+
+  .nav-row {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .nav-btn.primary:hover { background: #5a52e0; border-color: #5a52e0; transform: translateY(-1px); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ── RESULTS SCREEN ── */
+  #results {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 20px; }
+  .result-title { font-size: clamp(28px, 5vw, 48px); font-weight: 800; margin-bottom: 8px; }
+  .result-sub { color: var(--muted); margin-bottom: 40px; font-size: 15px; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 500px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .review-section {
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  .review-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--wrong);
+  }
+  .review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--wrong);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .review-item .ri-q { margin-bottom: 8px; color: var(--text); line-height: 1.5; }
+  .review-item .ri-your { color: var(--wrong); font-size: 13px; margin-bottom: 4px; }
+  .review-item .ri-correct { color: var(--correct); font-size: 13px; }
+  .ri-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+
+  .result-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(108,99,255,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(108,99,255,0); }
+  }
+
+  .shimmer {
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  /* Q navigator dots */
+  .q-nav-dots {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .q-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .q-dot.answered-correct { background: var(--correct); }
+  .q-dot.answered-wrong { background: var(--wrong); }
+  .q-dot.current { background: var(--accent); animation: pulse 1.5s infinite; }
+
+  /* Shuffle indicator */
+  .mode-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(108,99,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-badge">2nd Year Mathematics</div>
+  <h1 class="home-title">Full Book<br><span>MCQ Practice</span></h1>
+  <p class="home-sub">583 questions across all chapters · Track your progress · Review mistakes</p>
+
+  <div class="chapter-grid" id="chapterGrid"></div>
+
+  <div class="mode-row">
+    <button class="mode-btn selected" id="modeAll" onclick="setMode('all')">All Selected</button>
+    <button class="mode-btn" id="modeShuffle" onclick="setMode('shuffle')">🔀 Shuffle</button>
+    <button class="mode-btn" id="modePractice" onclick="setMode('practice')">⚡ Practice Mode</button>
+  </div>
+
+  <button class="start-btn" onclick="startQuiz()">START QUIZ →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="progress-info">
+      <div class="q-counter">Q <span id="qNum">1</span> / <span id="qTotal">0</span></div>
+      <div class="score-pill">
+        <span class="correct-c" id="scoreCorrect">0</span> ✓ &nbsp;
+        <span class="wrong-c" id="scoreWrong">0</span> ✗
+      </div>
+      <span class="mode-tag" id="modeTag">NORMAL</span>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="q-nav-dots" id="qNavDots"></div>
+  <div class="question-wrap">
+    <div class="chapter-tag" id="qChapterTag"></div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <div class="feedback-bar" id="feedbackBar"></div>
+    <div class="nav-row">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Prev</button>
+      <button class="nav-btn primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="result-emoji" id="resultEmoji">🎉</div>
+  <div class="result-title" id="resultTitle">Quiz Complete!</div>
+  <div class="result-sub" id="resultSub"></div>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-val" id="statScore" style="color:var(--accent)">0%</div>
+      <div class="stat-label">Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statCorrect" style="color:var(--correct)">0</div>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statWrong" style="color:var(--wrong)">0</div>
+      <div class="stat-label">Wrong</div>
+    </div>
+  </div>
+  <div class="review-section" id="reviewSection"></div>
+  <div class="result-btns">
+    <button class="nav-btn primary" onclick="restartSame()">Retry Same</button>
+    <button class="nav-btn" onclick="retryWrong()" id="retryWrongBtn">Retry Wrong Only</button>
+    <button class="nav-btn" onclick="goHome()">← Home</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA — All chapters & questions
+// ═══════════════════════════════════════════════
+
+const CHAPTERS = [
+  {
+    id: 0,
+    name: "Functions & Limits",
+    tag: "CH 1-2",
+    questions: [
+      {q:"cosech x =", opts:["2/(eˣ+e⁻ˣ)","(eˣ+e⁻ˣ)/2","2/(eˣ−e⁻ˣ)","(eˣ−e⁻ˣ)/2"], ans:2},
+      {q:"If f(x) = x³ + sin x then f(x) is:", opts:["Constant function","Even function","Odd function","Neither even nor odd"], ans:2},
+      {q:"f(x) = 3x/(x²+1) is _____ function:", opts:["Even","Odd","Both even and odd","Neither even nor odd"], ans:1},
+      {q:"x = at², y = 2at are parametric equations of a:", opts:["Ellipse","Circle","Parabola","Hyperbola"], ans:2},
+      {q:"f(x) = cos x + sin x is _____ function:", opts:["Even","Odd","Both even and odd","Neither even nor odd"], ans:3},
+      {q:"If f(x) is continuous at point x = a, then:", opts:["f(a) = lim(x→a) f(x)","f(a) = lim(x→0) f(x)","f(0) = lim(x→0) f(x)","f(x) = lim(x→0) f(x)"], ans:0},
+      {q:"lim(x→0) sin x° / x equals:", opts:["π/180","180/π","180π","1"], ans:0},
+      {q:"lim(a→∞) (1 + 1/n)²ⁿ =", opts:["e²","e⁻¹","e⁻²","e"], ans:0},
+      {q:"If f: X → Y is a function, then X is called:", opts:["Domain","Range","Function","Dependent"], ans:0},
+      {q:"If f(x) = x² − x then f(x−2) is equal to:", opts:["2","6","0","−6"], ans:1},
+      {q:"A function 1: X → X of the form 1(x) = x ∀x ∈ X is called:", opts:["Linear function","Constant function","Identity function","Even function"], ans:2},
+      {q:"lim(n→∞) (1 + 1/n)ⁿ =", opts:["4e","3e","2e","e"], ans:3},
+      {q:"If f(x) = (x+2)² then:", opts:["Function is even","Function is odd","Function is neither even nor odd","Constant function"], ans:2},
+      {q:"(e² − e⁻²) / (eˣ − e⁻ˣ) =", opts:["sinh x","cosh x","tanh x","coth x"], ans:3},
+      {q:"(1 − e²ˣ) / 2eˣ is equal to:", opts:["sinh x","−sinh x","cosh x","−cosh x"], ans:1},
+      {q:"lim(x→0) (a² − 1) / x =", opts:["ln x","ln a","1","0"], ans:1},
+      {q:"(e²ˣ − 1) / 2x² is equal to:", opts:["sin X","cos X","sin⁻¹ X","sin²x"], ans:2},
+      {q:"Which of the following is an odd function?", opts:["cos x","cosh x","sinh x","cosh⁻¹ x"], ans:2},
+      {q:"Let f(x) = x² + cos x, then f(x) is:", opts:["Odd function","Constant function","Even function","Neither even nor odd"], ans:2},
+      {q:"If at least one vertical line meets the curve at more than two points then curve is:", opts:["A function","Not a function","One-to-one function","Onto function"], ans:1},
+      {q:"Domain of f(x) = x² + 1:", opts:["R","R−{1}","{1, ∞}","None of these"], ans:0},
+      {q:"(e² − e⁻²) / 2 =", opts:["sin x","cos x","sin hx","cos hx"], ans:2},
+      {q:"The parametric equation x = a secθ and y = b tanθ represent the equation of:", opts:["Hyperbola","Circle","Parabola","Ellipse"], ans:0},
+      {q:"logₑ(1/x + √(1−x²)/x) = ....., 0 < x ≤ 1", opts:["sech⁻¹x","cosech⁻¹x","Tanh⁻¹x","coth⁻¹x"], ans:0},
+      {q:"The range of f(x) = 2 + √(x−1) is:", opts:["[−1, ∞)","[0, ∞)","[2, ∞)","[−2, ∞)"], ans:2},
+      {q:"The linear function f(x) = ax + 2 becomes constant if:", opts:["a=10, b=0","a=1, b=0","x=1, b=0","x=10, b=0"], ans:2},
+      {q:"If f(x) = −2x+8, then f⁻¹(−1):", opts:["9/2","2/9","7/2","2/7"], ans:0},
+      {q:"If f(x) = √(x+4), then f(4) =", opts:["8","16","√2","2√2"], ans:3},
+      {q:"If f(x) = 2x+6, then f⁻¹(x) =", opts:["6−2x","(6−x)/2","2/(6−x)","2x−6"], ans:1},
+      {q:"If x = at² and y = 2at are equations of a curve then 't' is called:", opts:["Variable","Constant","Parameter","Coefficient"], ans:2},
+    ]
+  },
+  {
+    id: 1,
+    name: "Limits & Continuity (cont.)",
+    tag: "CH 2",
+    questions: [
+      {q:"x = a cos t and y = a sin t are the Parametric Equation of a:", opts:["Circle","Parabola","Ellipse","Line"], ans:0},
+      {q:"Who recognized the term function to describe the dependence of one quantity on other?", opts:["Euler","Leibniz","Language","Bohr"], ans:1},
+      {q:"The range of f(x) = x² + 1 is:", opts:["(−∞, −∞)","R","(0, ∞)","(−1, 0)"], ans:2},
+      {q:"The range of f(x) = |x+2|/(x+2), X ≠ 2 is:", opts:["{1}","{−1, 1}","{−1}","R−{−1, 1}"], ans:1},
+      {q:"If f(x) = x², then domain of f is:", opts:["Real number","Integer","Rational number","Irrational"], ans:0},
+      {q:"The output of a function is also called:", opts:["Result","Domain","Image","None of these"], ans:2},
+      {q:"f(x) = cos x, then f(0) =", opts:["−1/2","2/−1","0","1"], ans:3},
+      {q:"f(x) = √(x+1) is function then f(t²−1) =", opts:["t+1","t²+1","t","t²"], ans:2},
+      {q:"If y is image of x under function f, we write it as:", opts:["x = f","y # f","y = f","y = x"], ans:2},
+      {q:"if f(x) = 2x + 5 then f(2) equals:", opts:["1","9","−9","−1"], ans:1},
+      {q:"lim(x→0) sin x / x =", opts:["1","π/180","−1","180/π"], ans:0},
+      {q:"lim(x→0) (1+3x)^(2/x) =", opts:["e²","e³","e⁶","e⁴"], ans:2},
+      {q:"lim(n→∞) (1 − 1/n)ⁿ =", opts:["e","e²","e⁻¹","1/e"], ans:3},
+      {q:"lim(n→∞) (1 + 1/n)²ⁿ =", opts:["e²","e⁻¹","e⁻²","e"], ans:0},
+      {q:"lim(x→0) sin ax / sin bx =", opts:["a/b","−b/a","−a/b","b/a"], ans:0},
+      {q:"lim(n→∞) (1 + 1/3n)ⁿ =", opts:["e³","e^(1/3)","1/e³","−1/e³"], ans:1},
+      {q:"lim(n→∞) (1 + 1/n)^(n/2) =", opts:["e","√e","0","1/e"], ans:1},
+      {q:"lim(x→2) (x−2)/(√x − √2) =", opts:["√2","2","2√2","0"], ans:1},
+      {q:"lim(x→0) sin 3x / sin 2x =", opts:["2/3","3/2","1/6","1/4"], ans:1},
+      {q:"lim(x→a) (x²−a²)/(x−a) =", opts:["0","2a","a²","Undefined"], ans:1},
+      {q:"lim(x→a) (x³−a³)/(x−a) =", opts:["Undefined","3a²","a²","0"], ans:1},
+      {q:"lim(x→2) (x⁵−32)/(x−2) =", opts:["40","60","80","120"], ans:2},
+      {q:"lim(x→0) (eˣ−1)/x =", opts:["0","1","e","∞"], ans:1},
+      {q:"lim(x→0) sin 7x / x =", opts:["7","1/7","1","0"], ans:0},
+      {q:"lim(x→0) sin x° / x =", opts:["π/180","180/π","180π","1"], ans:0},
+      {q:"The function f(x) = (2+3x)/2x is not continuous at:", opts:["x = −3","x = −2/3","x = 0","x = 1"], ans:2},
+      {q:"If lim(n→0) [f(x)−1]/x = ln a; a > 0 then f(x) =", opts:["a⁻ˣ","aˣ","e⁻ˣ","eˣ"], ans:1},
+      {q:"lim(x→0) aˣ − 1 / x =", opts:["ln x","ln a","1","0"], ans:1},
+      {q:"lim(x→π) sin x/(π−x) =", opts:["Zero","1","2","3"], ans:1},
+      {q:"Domain of f(x) = 2 + √(x−1), ∀x ∈ R is:", opts:["(−1, ∞)","(1, ∞)","(2, ∞)","(−2, ∞)"], ans:1},
+    ]
+  },
+  {
+    id: 2,
+    name: "Differentiation",
+    tag: "CH 3-4",
+    questions: [
+      {q:"lim(h→0) [f(a+h) − f(a)] / h =", opts:["f(a)","f'(a+h)","f'(x)","f'(a)"], ans:3},
+      {q:"The notation used for derivative of f(x) by Cauchy is:", opts:["Df(x)","f'(x)","f(x)","dy/dx"], ans:1},
+      {q:"Both relative maximum and relative minimum are called:", opts:["Greatest","Least value","Relative extrema","Maxima"], ans:2},
+      {q:"If f(x) = C then f'(x) =", opts:["C","1","0","∞"], ans:2},
+      {q:"f(x) = (1+x)ⁿ, f'(0) will be:", opts:["0","n","1","n!"], ans:1},
+      {q:"The derivative of √x at x = a is:", opts:["1/(2√a)","2√a","1/√a","−1/(2√a)"], ans:0},
+      {q:"If y = 1/x², then dy/dx at x = −1 is:", opts:["2","3","1/3","4"], ans:0},
+      {q:"f(x) = x^(2/3), then f'(8) =", opts:["1/2","2/3","1/3","3"], ans:1},
+      {q:"If f(x) = 3 − √x then f'(1) =", opts:["3/2","1/2","−1/2","−1/√2"], ans:3},
+      {q:"If f(x) = x^(2/3) the f'(x) =", opts:["(2/3)x^(1/3)","(2/3)x^(−1/3)","(2/3)x^(5/3)","(3/2)x^(1/3)"], ans:1},
+      {q:"d/dx (xⁿ) is equal to:", opts:["nxⁿ⁻¹","xⁿ⁻¹","xⁿ⁺¹/n","nxⁿ⁺¹"], ans:0},
+      {q:"If f(x) = x¹⁰, then f'(1) =", opts:["90","9","10","100"], ans:2},
+      {q:"d/dx (1/x²) at x = 1 is:", opts:["−2","2","1","−1"], ans:0},
+      {q:"d/dx (1/√x) =", opts:["1/(2x√x)","−1/(2x√x)","1/(2x)·x√x","None of these"], ans:1},
+      {q:"d/dx (ax+b)ⁿ is equal to:", opts:["n(axⁿ⁻¹+b)","n(ax+b)ⁿ⁻¹","naxⁿ⁻¹","na(ax+b)ⁿ⁻¹"], ans:3},
+      {q:"d/dx (x³+4)^(1/3) is equal to:", opts:["x(x³+4)^(−3/2)","(x³+4)^(−2/3)(2x²)","x²(x³+4)^(−2/3)","(x³+4)^(4/3)"], ans:2},
+      {q:"d/dx (4x+7)⁹ =", opts:["36(4x+7)⁸","36(4x+7)⁹","28(4x+7)⁸","63(4x+7)⁸"], ans:0},
+      {q:"d/dx (x − 1/x²) =", opts:["1 − 1/x","1 + 1/x","1 + 1/x²","1 − 1/x²"], ans:3},
+      {q:"The derivation of (x³+2x²)/x³ equals:", opts:["2/x²","−2/x²","1/(2x²)","−1/(2x²)"], ans:1},
+      {q:"d/dx (5f(x)) =", opts:["f'(x)","5","5f'(x)","5+f'(x)"], ans:2},
+      {q:"d/dx (a/x) (where a is constant) is:", opts:["1/x","−a/x","a/x²","−a/x²"], ans:3},
+      {q:"d/dx (sin⁻¹ x) =", opts:["cos x","1/√(1−x²)","−1/√(1−x²)","1/√(1+x²)"], ans:1},
+      {q:"1/(1+x²) is derivative of:", opts:["sin⁻¹ x","sec⁻¹ x","tan⁻¹ x","cot⁻¹ x"], ans:2},
+      {q:"d/dx (tan⁻¹ x) =", opts:["1/(x√(x²−1))","1/(1+x²)","cot x","1/(1+x³)"], ans:1},
+      {q:"d/dx (tan⁻¹ 4x) =", opts:["−1/(1+16x²)","4/(1+16x²)","−4/(1+16x²)","None of these"], ans:1},
+      {q:"d/dx (sec⁻¹x + cosec⁻¹x) equals:", opts:["1","−1","0","2"], ans:2},
+      {q:"d/dx (cot⁻¹x) =", opts:["1/(1+x²)","−1/(1+x²)","1/(1−x²)","1/√(1+x²)"], ans:1},
+      {q:"d/dx (cos⁻¹x) =", opts:["1/√(1−x²)","−1/√(1−x²)","1/√(1−x²)","1/(1+x)"], ans:1},
+      {q:"d/dx (tan⁻¹ 3x) =", opts:["1/(1+3x)","3/(1+3x)","1/(1+9x²)","3/(1+9x²)"], ans:3},
+      {q:"d/dx (cos⁻¹ 3x) =", opts:["3/√(1−9x²)","−3/√(1−9x²)","1/√(1−9x²)","−1/√(1−9x²)"], ans:1},
+    ]
+  },
+  {
+    id: 3,
+    name: "Differentiation (Trig & Exp)",
+    tag: "CH 3-4 cont.",
+    questions: [
+      {q:"d/dx (tan x) is equal to:", opts:["cosec²x","tan²x","sec²x","sec x"], ans:2},
+      {q:"d/dx (sin³x) =", opts:["3 sin²x cos x","2 sin²x cos x","sec x","cosec x"], ans:0},
+      {q:"d/dx (sin²x + cos²x) is equal to:", opts:["Zero","1","2","3"], ans:0},
+      {q:"d/dx (cos²x − sin²x) =", opts:["2 cos 2x","−2cos 2x","−2sin 2x","2sin 2x"], ans:1},
+      {q:"d/dx (cosec x) =", opts:["−cosec x","−cosec x cot x","−cosec²x cot x","−cot x"], ans:1},
+      {q:"If f(x) = tan x, then f'(π/4) =", opts:["1","1/2","2","1/√2"], ans:0},
+      {q:"d/dx cot² 2x =", opts:["4 cot 2x cosec 2x","−4 cot 2x cosec⁻² 2x","4 cot² 2x cosec 2x","−4 cot 2x"], ans:1},
+      {q:"If f(x) = cos x then f'(π/2) =", opts:["1","0","1/2","−1"], ans:3},
+      {q:"If f(x) = sin x then f''(π/2) =", opts:["0","1","2","−1"], ans:3},
+      {q:"d/dx (eˣ) is equal to:", opts:["xe","eˣ⁺¹","xeˣ⁻¹","eˣ"], ans:3},
+      {q:"d/dx (5ˣ) =", opts:["5ˣ","5 ln 5ˣ","5(5ˣ)","None of these"], ans:1},
+      {q:"d/dx (e^(sin x)) equals:", opts:["e^(sin x) · cos x","−e^(sin x) · cos x","e^(cos x) · sin x","−e^(cos x) sin x"], ans:0},
+      {q:"d/dx (e^(tan x)):", opts:["e^(tan x)","e^(tan x) ln sec²","e^(tan x) ln tanx","e^(tan x) sec²x"], ans:3},
+      {q:"d/dx (e^f(x)) equals:", opts:["e^f(x)","e^f(x) · f'(x)","f'(x)/eˣ","e^f(x)/f'(x)"], ans:1},
+      {q:"If f(x) = 2ˣ then f'(x) equals:", opts:["2ˣ⁻¹","2ˣ ln 2","2ˣ/ln2","ln2/2"], ans:1},
+      {q:"d/dx (e^(x²−1)) =", opts:["eˣ⁻¹","2xe^(x+1)","3eˣ","3e^(4x)"], ans:1},
+      {q:"d/dx (a^λx) =", opts:["λa^(λx) ln a","a^(λx) ln a","a^(λx)/ln a","a^(λx)/λ"], ans:0},
+      {q:"d/dx (ln x) is equal to:", opts:["x","1/x","x²","1/x²"], ans:1},
+      {q:"If y = ln eˣ, then dy/dx =", opts:["eˣ","1/eˣ","1","eˣ⁻¹"], ans:2},
+      {q:"If y = ln(sin x), then dy/dx equals:", opts:["Tan x","Cot x","− Tan x","− Cot x"], ans:1},
+      {q:"d/dx [ln(ln x)] =", opts:["1/x","1/ln x","x/ln x","1/(x ln x)"], ans:3},
+      {q:"d/dx (ln cos x) =", opts:["tan x","Cot x","− Tan x","− Cos x"], ans:2},
+      {q:"d/dx (cosh x) =", opts:["Sinh x","−sinh x","Cosh x","−cosh x"], ans:0},
+      {q:"d/dx (sinh x) =", opts:["(eˣ−e)/2","(eˣ+e)/2","eˣ+e⁻ˣ","None of these"], ans:1},
+      {q:"d/dx (tanh x) =", opts:["−sech²x","sech²x","cosech x","−cosech²x"], ans:1},
+      {q:"d/dx (cosh 3x) =", opts:["−3sinh 3x","3sech 3x","3tanh 3x","3sinh 3x"], ans:3},
+      {q:"d/dx (sinh 2x) =", opts:["2 cosh 2x","2 sinh 2x","−2 cosh 2x","−2 sinh 2x"], ans:0},
+      {q:"d/dx (tanh⁻¹ x) =", opts:["1/(1+x²)","1/(x²−1)","1/(1−x²)","1/√(x²−1)"], ans:2},
+      {q:"d/dx (cosh⁻¹ x) =", opts:["1/√(1+x²)","1/√(1−x²)","1/√(x²−1)","−1/√(x²−1)"], ans:2},
+      {q:"d²/dx² (cosh 3x) =", opts:["3 cos h 3x","3 sin h 3x","−cos h 3x","9 cos h 3x"], ans:3},
+    ]
+  },
+  {
+    id: 4,
+    name: "Higher Derivatives & Series",
+    tag: "CH 4",
+    questions: [
+      {q:"If y = eᵃˣ then y₄ =", opts:["a⁴eᵃˣ","2eᵃˣ/a","3eᵃˣ","xeᵃˣ"], ans:0},
+      {q:"If y = 2²ˣ then y₄ equals:", opts:["16e²ˣ","8e²ˣ","2e²ˣ","2²ˣ"], ans:0},
+      {q:"If y = sin 3x then y₂ equals:", opts:["3 cos 3x","9 cos 3x","−9 sin 3x","9 sin 3x"], ans:2},
+      {q:"If y = sin x, then d²y/dx² equals:", opts:["cos x","−cos x","y","−y"], ans:3},
+      {q:"Y = e⁻²ˣ then y₂ =", opts:["−2e⁻²ˣ","−4e⁻²ˣ","e⁻²ˣ","4e⁻²ˣ"], ans:3},
+      {q:"If y = lnx the y₂ =", opts:["1/x","−1/x","−1/x²","1/x²"], ans:2},
+      {q:"Let y = cos(ax+b), then y₂ equals:", opts:["ay","−ay","a²y","−a²y"], ans:3},
+      {q:"If y = 5eˣ then y₃ equals:", opts:["25eˣ","75eˣ","15eˣ","5eˣ"], ans:3},
+      {q:"d²/dx² (2ˣ) is:", opts:["x2ˣ⁻¹","ln2ˣ","2ˣ(ln)²","x ln2"], ans:2},
+      {q:"1 − x²/2! + x⁴/4! + x⁶/6! + ... is Maclaurin series of:", opts:["cos x","sin x","ln(1+x)","√(1+x)"], ans:0},
+      {q:"f(x) = f(0) + f'(0)x + f''(0)/2! x² + ... is called:", opts:["Taylor series","Binomial series","Laurent series","Maclaurin series"], ans:3},
+      {q:"a₀ + a₁x + a₂x² + .... + aₙxⁿ + ... is:", opts:["Maclaurin series","Taylor series","Power series","Binomial series"], ans:2},
+      {q:"Second term in Maclaurin series expansion of f(x) = eˣ equals:", opts:["1","x²","x","x³"], ans:2},
+      {q:"1 − x²/2! + x⁴/4! + x⁶/6! + ... is Maclaurin expansion of:", opts:["Sin x","Cos x","eˣ","e²ˣ"], ans:1},
+      {q:"If f(x+h) = cos(x+h) then f'(x) equals:", opts:["Cos x","− cos x","Sin x","− Sin x"], ans:3},
+      {q:"The minimum value of function f(x) = x² + 2x − 3 is at x =", opts:["−3","1","0","−1"], ans:3},
+      {q:"The first term of Taylor series expansion of ln(1+x) at x = 2 is:", opts:["ln 3","ln 2","ln 1","ln 0"], ans:0},
+      {q:"A function f'(x) > 0 then it is:", opts:["Differential","Increasing","Decreasing","Zero"], ans:1},
+      {q:"If f'(c) = 0 then f(x) has relative maxima at x = c if:", opts:["f''(c) = 0","f''(c) > 0","f''(c) < 0","None of these"], ans:2},
+      {q:"The function f(x) = 3x² has minimum value at:", opts:["x = 3","x = 2","x = 1","x = 0"], ans:3},
+      {q:"If f'(c) = 0 then f(x) has relative minima at c if f''(x) is:", opts:["Positive","Zero","Any value","Negative"], ans:0},
+      {q:"f(x) = sin x is decreasing function in the interval:", opts:["(−π, −π/2)","(−π/2, 0)","(0, π/2)","(−2π, −π/2)"], ans:0},
+      {q:"The critical value of f(x) = x² − x − 2 equals:", opts:["1/2","−1/2","2","−2"], ans:0},
+    ]
+  },
+  {
+    id: 5,
+    name: "Integration",
+    tag: "CH 5",
+    questions: [
+      {q:"∫ 3ˣ dx =", opts:["3ˣ+c","2ˣ ln3+c","3ˣ/ln3+c","3 ln3+c"], ans:2},
+      {q:"∫ (1/x) dx equals:", opts:["x","ln x","1/x²","2/x²"], ans:1},
+      {q:"∫ sec x dx equals:", opts:["sec x tan x","ln(sec x tan x)","ln(sec x + tan x)","ln(sec x − tan x)"], ans:2},
+      {q:"∫ sec²x dx =", opts:["Cot x+c","Tan x+c","Sec x+c","cosec x+c"], ans:1},
+      {q:"∫ tan x dx =", opts:["ln|sec x|+c","ln|cosec x|+c","ln|sin x|+c","ln|cot x|+c"], ans:0},
+      {q:"∫ sec(5x) tan(5x) dx is equal to:", opts:["5 sec(5x)+c","sec x/5 + c","sec 5x/5 + c","tan 5x/5 + c"], ans:2},
+      {q:"∫ cos 2x dx is equal to:", opts:["−2sin 2x+c","2sin 2x+c","−sin2x/2+c","sin 2x/2+c"], ans:3},
+      {q:"∫ aˣ dx =", opts:["aˣ/ln a + c","aˣ+c","ln a/aˣ + c","aˣ ln a+c"], ans:0},
+      {q:"∫ xⁿ dx for n ≠ −1:", opts:["xⁿ⁺¹/n+c","xⁿ⁻¹/(n−1)+c","xⁿ⁺¹/(n+1)","nxⁿ⁻¹+c"], ans:2},
+      {q:"Anti-derivative of cot x =", opts:["−cosec²x","−cot x cosec x","ln(cos x)","ln sin x"], ans:3},
+      {q:"∫ 1/(ax+b) dx =", opts:["ln|ax+b|","(1/a)ln|ax+b|","a ln|dx+b|","ax ln|ax+b|"], ans:1},
+      {q:"∫ 1/(x²+4) dx =", opts:["(1/2)tan⁻¹(x/2)+c","tan⁻¹(x/2)+c","2tan⁻¹(x/2)+c","None of these"], ans:0},
+      {q:"∫ 1/(x²+9) dx =", opts:["tan⁻¹(x/3)","(1/3)sin⁻¹(x/3)","(1/3)tan⁻¹(x/3)","(1/3)cot⁻¹(x/3)"], ans:2},
+      {q:"∫ (−sin x) dx is equal to:", opts:["sin⁻¹ x","cos x","−cos x","−sin x"], ans:1},
+      {q:"∫ sin 3x dx is:", opts:["cos3x/3+c","−cos3x/3+c","3 cos 3x+c","−3cos 3x+c"], ans:1},
+      {q:"∫ 2ˣ dx =", opts:["2ˣ+c","2ˣ ln2+c","2 · 2ˣ/ln2+c","2ˣ/ln2+c"], ans:3},
+      {q:"∫ (eˣ+1) dx =", opts:["eˣ","eˣ+x","eˣ+x²","eˣ+x³"], ans:1},
+      {q:"∫ sin ax dx =", opts:["−cos ax/a","cos ax","a cosec x","a sec ax"], ans:0},
+      {q:"∫ sec²2x dx =", opts:["(1/2)tan 2x","Tan 2x","(1/2)tanx","2 tan 2x"], ans:0},
+      {q:"∫ sin 2x/sin x dx =", opts:["Sin 2x","2 sin 2x","(1/2)sin x","2 sin x"], ans:3},
+      {q:"∫ a/x dx =", opts:["ax=c","a ln|x|+c","−a/x²+c","(1/a)ln x+c"], ans:1},
+      {q:"∫ 2/(x+2) dx =", opts:["ln|x+2|","ln|x+2|²","1/ln|x+2|","2"], ans:0},
+      {q:"∫ f'(x)/f(x) dx is equal to:", opts:["ln|x|+c","ln|f(x)|+c","ln f'(c)","f(x)"], ans:1},
+      {q:"∫ cos x e^(sin x) dx =", opts:["e^(cos x)+c","sin x e^(cos x)+c","e^(sin x)+c","e^(sin x)cos x = c"], ans:2},
+      {q:"∫ √(2x+3) (2dx) =", opts:["(2/3)(2x+3)^(3/2)","(3/2)(2x+3)^(3/2)","(−2/3)(2x+3)^(3/2)","(−3/2)(2x+3)^(3/2)"], ans:0},
+      {q:"∫ sec²x/tan x dx =", opts:["Tan x","Cot x","Ln cot x","ln tan x"], ans:3},
+      {q:"∫ sin³x cos x dx =", opts:["sin³x/3","sin⁴x/4","sin⁵x/5","cos⁻⁴x/−4"], ans:1},
+      {q:"∫ (x²+2x−1)³(2x+2) dx =", opts:["(x²+2x+1)²/2","(x²+2x−1)⁵/5","(x²+2x−1)³/3","(x²+2x−1)⁴/4"], ans:3},
+      {q:"∫ log x / x dx =", opts:["Log x","Log(log x)","(log x)²/2","1/x²"], ans:2},
+      {q:"∫ x/(x+2) dx =", opts:["ln(x+2)+c","x+2ln(x+2)+c","x−2ln(x+2)+c","None of these"], ans:2},
+    ]
+  },
+  {
+    id: 6,
+    name: "Integration (cont.) & Definite Integrals",
+    tag: "CH 5 cont.",
+    questions: [
+      {q:"∫ sin x cos x dx =", opts:["Sin x+c","cos²x/2+c","sin²x/2+c","(sin x/2)²+c"], ans:2},
+      {q:"∫ eˣ/(eˣ−2) dx =", opts:["ln(eˣ+2)+c","ln(eˣ+3)","ln(eˣ−2)+c","ln(eˣ−3)+c"], ans:2},
+      {q:"∫ eˣ/(eˣ+3) dx =", opts:["ln(eˣ+3)+c","e²ˣ+c","e⁰+c","e²ˣ+3+c"], ans:0},
+      {q:"∫ cot x cosec²x dx =", opts:["−cot²x/2+c","(1/2)cot²x+c","f(x)+c","None of these"], ans:0},
+      {q:"∫ log_e(tan x)/sin 2x dx =", opts:["(1/2)(loge[tanx])⁷+c","(1/4)(loge[tanx])²+c","(1/2)loge(sin2x)²+c","(1/4)loge(sin2x)²+c"], ans:1},
+      {q:"∫ (ln x)/x dx equals:", opts:["ln(lnx)","(ln x)²/2","lnx","ln x/2"], ans:1},
+      {q:"∫ tan²x dx is equal to:", opts:["2 tan x","2tanx+x","tan x + x","tan x − x"], ans:3},
+      {q:"∫ sec²x tan x dx =", opts:["sec tan x sec x","sec³x/3","tan³x/2","sec³x tan x/3"], ans:1},
+      {q:"∫ e^(tan x) sec²x dx =", opts:["e^(tan x)","e^(−tan x)","e^(cot x)","e^(−cot x)"], ans:0},
+      {q:"∫ 1/√(a²−x²) dx is equal to:", opts:["sin⁻¹(x/a)","sin⁻¹(a/x)","cos⁻¹(x/a)","cos⁻¹(a/x)"], ans:0},
+      {q:"∫ eˣ(1/x − 1/x²) dx =", opts:["eˣ/x","xeˣ","eˣ/x²","−eˣ/x²"], ans:0},
+      {q:"∫ ln x dx =", opts:["x ln x","x ln x − x + c","x − x ln x + c","x + x ln x + c"], ans:1},
+      {q:"∫ eˣ(cos x + sin x) dx =", opts:["eˣcos x+c","eˣ sin x+c","−eˣsin x+c","−eˣcos x+c"], ans:1},
+      {q:"∫ e⁻ˣ(cos x − sin x) dx equals:", opts:["e⁻ˣsin x+c","eˣ sin x+c","eˣsin x+c","eˣcos x+c"], ans:0},
+      {q:"∫(1/x + ln x)eˣ dx:", opts:["(1/x)eˣ+c","eˣ lnx+c","eˣ ln x/x+c","(1/x)ln x+c"], ans:0},
+      {q:"∫₂⁴ (1/x) dx =", opts:["ln 4","4","ln 2","2"], ans:2},
+      {q:"∫₋₁² x dx =", opts:["1/2","−1/2","3/2","−3/2"], ans:2},
+      {q:"∫₁² 2x dx =", opts:["3","2","1","0"], ans:0},
+      {q:"∫₋π^π sin x dx =", opts:["0","2","4","6"], ans:0},
+      {q:"∫₂ᵏ 2x dx = 12 then k =", opts:["2,−2","2,6","4,−4","4,2"], ans:2},
+      {q:"∫₀^π sin x dx =", opts:["1","0","2","None of these"], ans:2},
+      {q:"∫₀¹ dx/√(1−x²) =", opts:["0","π","π/4","π/2"], ans:3},
+      {q:"∫₀^(1/2) dx/√(1−x²) =", opts:["π/4","π/2","π/3","π/6"], ans:3},
+      {q:"∫₀¹ 1/(1+x²) dx is equal to:", opts:["π/4","4/π","−π/4","−4/π"], ans:0},
+      {q:"∫₀^(π/4) sec²x dx =", opts:["5","4","2","1"], ans:3},
+      {q:"∫₋₁³ x³ dx is equal to:", opts:["20","80","28","18"], ans:0},
+      {q:"∫₀^(π/4) sec²x/(1+tan x) dx =", opts:["1","ln 2","2","3"], ans:1},
+      {q:"∫₋π/2^(π/2) cos x dx =", opts:["0","1","2","−1"], ans:2},
+      {q:"∫₀³ 1/√(9−x²) dx is equal to:", opts:["2/π","−2/π","−π/2","π/2"], ans:3},
+      {q:"If f is continuous on [a,b] and φ'(x) = f(x) then ∫ₐᵇ f(x)dx =", opts:["φ(a)−φ(b)","φ(b)−φ(a)","φ(a)","φ(b)"], ans:1},
+    ]
+  },
+  {
+    id: 7,
+    name: "Differential Equations & Straight Lines",
+    tag: "CH 6-7",
+    questions: [
+      {q:"The order of dy/dx = (4/3)x³ + x − 3 is:", opts:["1","3/4","4/3","−3"], ans:0},
+      {q:"Order of differential equation y(dy/dx) + 2x = 0 is:", opts:["2","3","4","1"], ans:3},
+      {q:"The general solution of (1/x)(dy/dx) − 2y = 0 is:", opts:["y = ceˣ","ceˣ","ce⁻¹","ce^(1/x)"], ans:0},
+      {q:"Degree of differential equation d²y/dx² + dy/dx − 3x = 0 is:", opts:["1","2","0","3"], ans:0},
+      {q:"Solution of dy/dx = cosec x cot x is y =", opts:["cosec x+c","−cosec x+c","Cot x+c","−cot x+c"], ans:1},
+      {q:"Solution of (eˣ+e⁻ˣ) dy/dx = eˣ − e⁻ˣ is y =", opts:["logₐ(eˣ+e⁻ˣ)+c","logₑ(eˣ+e⁻ˣ)+c","logₐ(eˣ−e⁻ˣ)+c","logₑ(eˣ−e⁻ˣ)+c"], ans:1},
+      {q:"Order of d²y/dx² + dy/dx − 2x = 0 is:", opts:["0","1","2","3"], ans:2},
+      {q:"The solution of dy/dx = sec²x is:", opts:["y = cos x+c","y = sec x+c","y = cosec²x+c","y = tan x+c"], ans:3},
+      {q:"Solution of dy/dx = cos x is:", opts:["y = cos x+c","y = tan x+c","y = sin x+c","y = cot x+c"], ans:2},
+      {q:"Applying initial value conditions in solution of differential equations, we get:", opts:["General solution","Particular solution","No solution","Infinite solutions"], ans:1},
+      {q:"If x(dy/dx) − y = 0 then y equals:", opts:["x²","x²/c","cx","c/x"], ans:2},
+      {q:"The solution of dy/dx = −y is:", opts:["y = xe⁻ˣ","y = ce⁻ˣ","y = eˣ","y = ceˣ"], ans:1},
+      {q:"Distance of (−3, 7) from x-axis is:", opts:["−3","3","7","10"], ans:2},
+      {q:"The distance between the points (0, 0) and (1, 2) is:", opts:["0","2","√3","√5"], ans:3},
+      {q:"Vertical line has a slope:", opts:["0","1","Undefined","−1"], ans:2},
+      {q:"If a straight line is parallel to y-axis, then its slope is:", opts:["−1","0","1","Undefined"], ans:3},
+      {q:"y − y₁ / y₂ − y₁ = x − x₁ / x₂ − x₁ is equation of straight line in:", opts:["Two-point form","Intercept form","Symmetric form","Point-slope form"], ans:0},
+      {q:"Intercept form of equation of line is:", opts:["x/a + y/b = c","x/a + y/b = −1","a/x + b/y = C","x/a + y/b = 1"], ans:3},
+      {q:"If a = 0 then the line ax + by + c = 0 is:", opts:["Parallel to x-axis","Parallel to y-axis","Perpendicular to x-axis","Passes through origin"], ans:0},
+      {q:"y-intercept of the line ax + by + c = 0 is:", opts:["b/c","−b/c","−c/b","c/b"], ans:2},
+      {q:"The distance of the line 12x + 5y = 7 from origin is:", opts:["1/13","7/13","13/7","13"], ans:1},
+      {q:"The distance of the line 3x + 4y + 10 = 0 from origin is:", opts:["0","1","2","10"], ans:2},
+      {q:"Perpendicular distance of point P(6, −1) from line 3x + 4y + 1 = 0 equals:", opts:["1","2","3","4"], ans:2},
+      {q:"Point of intersection of x − 2y + 1 = 0 and 2x − y + 2 = 0 equals:", opts:["(1, 0)","(0, 1)","(−1, 0)","(0, −1)"], ans:2},
+      {q:"The slope of the line with inclination 0° is:", opts:["0","1/√3","1","√3"], ans:0},
+      {q:"The line l₁, l₂ with slopes m₁, m₂ are perpendicular if:", opts:["m₁m₂ = −1","m₁ = m₂","m₁ + m₂ = 0","m₁ − m₂ = 0"], ans:0},
+      {q:"xcosθ + ysinθ = P is equation of straight line in:", opts:["Slope-intercept form","Two-intercept form","Point-slope form","Normal form"], ans:3},
+      {q:"Slope intercept form of line equals:", opts:["y − y₁ = m(x − x₁)","x/a + y/b = 1","xcos θ = ysin θ = P","y = mx + c"], ans:3},
+      {q:"Normal form of equation of line equals:", opts:["xcosθ + ysinθ = P","y = mx + c","y − y₁ = m(x − x₁)","x/a + y/b = 1"], ans:0},
+    ]
+  },
+  {
+    id: 8,
+    name: "Coordinate Geometry & Conics",
+    tag: "CH 7-8",
+    questions: [
+      {q:"The point of intersection of altitudes of a triangle is:", opts:["Centroid","Orthocenter","e-center","Circumcenter"], ans:1},
+      {q:"The coordinate axes divide the plane into equal parts:", opts:["2","3","4","5"], ans:2},
+      {q:"The mid-point divides the line segment in the ratio:", opts:["2:1","1:2","2:3","1:1"], ans:3},
+      {q:"Equation of vertical line through (5, −3) is:", opts:["x = 5","y = −3","x = 5","x = −3"], ans:0},
+      {q:"If A = (−3, 6) and B = (3, 2) then slope of AB is:", opts:["3/2","−2/3","1/3","−3/2"], ans:1},
+      {q:"The point (3, −8) lies in the quadrant:", opts:["I","II","III","IV"], ans:3},
+      {q:"Bisectors of angles of a triangle are:", opts:["Parallel","Perpendicular","Concurrent","Non-concurrent"], ans:2},
+      {q:"The slope of a line with inclination 90° is:", opts:["0","1/x","1","Undefined"], ans:3},
+      {q:"If α is the inclination of a non-vertical line l then its slope is:", opts:["sin α","cos α","tan α","cot α"], ans:2},
+      {q:"Slope of line 1 and angle made by line with x-axis =", opts:["45°","30°","60°","75°"], ans:0},
+      {q:"Two lines a₁x+b₁y+c₁=0 and a₂x+b₂y+c₂=0 are parallel then:", opts:["a₁/a₂ = −b₁/b₂","b₁/c₂ = b₁/c₂","a₁/a₂ = b₁/b₂","None of these"], ans:2},
+      {q:"Distance of (x, y) from y-axis is:", opts:["|x|","|y|","x","y"], ans:0},
+      {q:"The centroid of a triangle divides each median in the ratio:", opts:["2:1","1:2","3:1","1:3"], ans:0},
+      {q:"P is midpoint of AB if P divides AB in the ratio:", opts:["1:1","2:2","1:2","2:1"], ans:0},
+      {q:"x-coordinate of centroid of triangle ABC with A(−2,3), B(−4,1), C(3,5) equals:", opts:["−1","1","3","−3"], ans:0},
+      {q:"The point of intersection of two lines x + y = 2 and 2x − y = 1 is:", opts:["(1,2)","(−1,2)","(−1,−2)","(1,1)"], ans:3},
+      {q:"Point of intersection of x−2y+1=0 and 2x−y+2=0 equals:", opts:["(1,0)","(0,1)","(−1,0)","(0,−1)"], ans:2},
+      {q:"Slope of line perpendicular to 3x−4y+5=0 is:", opts:["−3/4","−4/3","3/4","4/3"], ans:1},
+      {q:"Equation of the line parallel to x-axis:", opts:["x=0","x=y","y=a","x=a"], ans:2},
+      {q:"Homogeneous equation ax²+2hxy+by²=0 represents real and coincident if:", opts:["h²>ab","h²<ab","h²=ab","h²=0"], ans:2},
+      {q:"The pair of lines represented by ax²+2hxy+by²=0 are orthogonal if:", opts:["a+b>0","a+b=0","h²−ab<0","h²−ab=ab"], ans:1},
+      {q:"Focus of the parabola x² = 4ay is:", opts:["(a,0)","(−a,0)","(0,a)","(0,−a)"], ans:2},
+      {q:"The line y=mx+c tangent to circle x²+y²=a² if:", opts:["c²=a²(1+m²)","c²=a²(1−m)","c²=a²(m²−1)","c=a(1+m²)"], ans:0},
+      {q:"Vertices of ellipse x²+4y²=16 are:", opts:["(±4,0)","(0,±4)","(0,±2)","(±2,0)"], ans:0},
+      {q:"Equation of circle with centre (0,0) and radius r:", opts:["x²+y²+7","x²+y²+r²","x+y=0","x²+y²=r²"], ans:3},
+      {q:"x²+y²+2gx+2fy+c=0 is the equation of:", opts:["line","ellipse","hyperbola","circle"], ans:3},
+      {q:"The centre of the circle x²+y²+2gx+2fy+c=0 is:", opts:["(g,f)","(f,g)","(−f,−g)","(−g,−f)"], ans:3},
+      {q:"Asymptotes are very useful in graphing:", opts:["circle","Ellipse","Parabola","Hyperbola"], ans:3},
+      {q:"The length of latus rectum of parabola y²=8x is:", opts:["2","4","6","8"], ans:3},
+      {q:"Directrix of y²=8x is:", opts:["x+=0","x−2=0","y+2=0","y=−2"], ans:1},
+    ]
+  },
+  {
+    id: 9,
+    name: "Circles, Parabola & Ellipse",
+    tag: "CH 8 cont.",
+    questions: [
+      {q:"x²+y²=r² is the equation of circle with centre:", opts:["(1,1)","(0,0)","(0,1)","(1,0)"], ans:1},
+      {q:"The center of circle (x+3)²+(y−2)²=16 equals:", opts:["(−3,2)","(3,−2)","(3,2)","(−3,−2)"], ans:0},
+      {q:"The radius of circle x²+y²+2gx+2fy+c=0:", opts:["√(g²+f²+c)","√(g²−f²−c)","√(g²+f²−c)","√(−g²+f²−c)"], ans:2},
+      {q:"The radius of circle x²+y²+6x+8y+9=0 is equal to:", opts:["6","8","9","4"], ans:3},
+      {q:"Center of the circle x²+y²+8x−6y+37=0:", opts:["(4,3)","(−4,3)","(−4,−3)","(4,−3)"], ans:1},
+      {q:"The radius of the circle x²+y²−6x+2y+1=0:", opts:["5","4","3","2"], ans:2},
+      {q:"The center of circle x²+y²+12x−10y=0:", opts:["(6,5)","(−6,5)","(5,6)","(6,−5)"], ans:1},
+      {q:"The center of the circle x²+y²+6x+4y−13=0:", opts:["(−6,4)","(6,−4)","(3,−2)","(−3,−2)"], ans:3},
+      {q:"Equation of circle with center at origin and radius √5 is:", opts:["x²+y²=√5","x²+y²=5","x²+y²=25","x²−y²=5"], ans:1},
+      {q:"The set of all points in the plane equally distant from a fixed point is called:", opts:["Ellipse","Parabola","Hyperbola","Circle"], ans:3},
+      {q:"A circle is called a point circle if:", opts:["y²=8x","r=0","r=2","r=3"], ans:1},
+      {q:"The center of the circle (x−1)²+(y+3)²=3 is:", opts:["(−1,−3)","(−1,3)","(1,3)","(1,−3)"], ans:3},
+      {q:"Equation of tangent to circle s²+y²=a² at P(x₁,y₁) is:", opts:["xx₁+yy₁=a²","xx₁−yy₁=a²","xy₁+yx₁=a²","xy₁−yx₁=a²"], ans:0},
+      {q:"The parabola y²=4ax, a>0 opens:", opts:["Right side","Left side","Upward","Downward"], ans:0},
+      {q:"The latus rectum of y²=4ax:", opts:["x=−a","y=−a","x=a","y=a"], ans:2},
+      {q:"The vertex of the parabola x²=−4ay is:", opts:["(a,0)","(−a,0)","(0,0)","(0,−a)"], ans:2},
+      {q:"Latus rectum of parabola x²=−8y:", opts:["x=2","x=4","y=2","y=−2"], ans:3},
+      {q:"Focus of the parabola y²=−4ax is:", opts:["(a,0)","(−a,0)","(0,a)","(0,−a)"], ans:1},
+      {q:"Focus of the parabola x²=4ay is:", opts:["(a,0)","(−a,0)","(0,a)","(0,−a)"], ans:2},
+      {q:"The vertex of parabola (x−1)²=8(y+2) is:", opts:["(1,−2)","(0,1)","(−1,−2)","(1,2)"], ans:0},
+      {q:"Directrix of y²=8x is:", opts:["x+2=0","x−2=0","y+2=0","y−2=0"], ans:0},
+      {q:"Eccentricity of an ellipse is:", opts:["e=1","e>1","0<e<1","e=0"], ans:2},
+      {q:"The end points of minor axes ellipse are:", opts:["foci","vertices","covertices","centre"], ans:2},
+      {q:"The eccentricity of y²/4 − x²=1:", opts:["2/√5","−2/√5","√5/2","−√5/2"], ans:2},
+      {q:"Parabola x²=4ay opens:", opts:["towards left","towards right","upwards","downwards"], ans:2},
+      {q:"Focal chord perpendicular to axis of parabola is called:", opts:["latus rectum","eccentricity","vertex","axis"], ans:0},
+      {q:"Eccentricity of hyperbola is:", opts:["e=0","e<1","e>1","e=1"], ans:2},
+      {q:"If PF/PM = E and e=1 conic is called:", opts:["Circle","Parabola","Ellipse","Hyperbola"], ans:1},
+      {q:"The eccentricity of ellipse x²/25 + y²/16 = 1:", opts:["5/4","4/5","5/3","3/5"], ans:3},
+      {q:"Eccentricity of parabola:", opts:["0<e<1","e=1","e>1","e=−1"], ans:1},
+    ]
+  },
+  {
+    id: 10,
+    name: "Linear Programming",
+    tag: "CH 5 (Book 2)",
+    questions: [
+      {q:"(1,0) is solution of inequality:", opts:["9x+2y<8","−x+3y<0","3x+5y>6","3x+5y>4"], ans:1},
+      {q:"If 2x+y ≤ 6 which point satisfies:", opts:["(3,1)","(1,3)","(0,7)","(4,0)"], ans:1},
+      {q:"(0,0) lies in the solution set of inequality:", opts:["x+2y ≤ 10","x+2y ≥ 10","x−2y ≥ 10","None of these"], ans:0},
+      {q:"The point (1,2) satisfy in equality:", opts:["x+2y>3","x−2y>3","x−2y>4","x+2y<3"], ans:0},
+      {q:"(1,3) is in the solution:", opts:["x+4<0","2x+3<0","x+4<0","2x−1<0"], ans:3},
+      {q:"Which one satisfies x+2y<6?", opts:["(4,1)","(1,3)","(1,4)","(3,1)"], ans:3},
+      {q:"The point (−1,2) satisfies the inequality:", opts:["x−y>4","x−y ≥ 4","x−y ≤ 4","x+y ≤ 4"], ans:2},
+      {q:"ax+b<c is a linear inequality in:", opts:["four variables","three variables","one variable","two variables"], ans:2},
+      {q:"(2,1) is in the solution of inequality:", opts:["2x+y>0","x−y>1","3x+5y<7","2x+y>6"], ans:0},
+      {q:"2x+3y<5 is satisfied by:", opts:["(1,1)","(1,2)","(2,3)","(−1,1)"], ans:3},
+      {q:"(0,0) is the solution of inequality:", opts:["7x+2y>3","x−3y>0","x+2y<6","x−3y<0"], ans:2},
+      {q:"Point (1,2) lies in the solution region:", opts:["2x+y>5","x+3y>5","2x+y>3","2x+y<6"], ans:1},
+      {q:"The feasible solution which maximizes or minimizes the objective function is called:", opts:["solution","optimal solution","minimum solution","maximum solution"], ans:1},
+      {q:"System of linear inequalities involved in the problem is called:", opts:["coefficients","solution","problem constraints","boundaries"], ans:2},
+      {q:"To find optimal solution we evaluate the objective function at:", opts:["one point","origin","some points","corner points"], ans:3},
+      {q:"A function which is to be maximized or minimized is called:", opts:["Subjective function","Qualitative function","Objective function","Quantitative function"], ans:2},
+      {q:"Solution region of in-equality 2x+y>2 lies:", opts:["in 1st quadrant","in 2nd quadrant","towards the origin","outwards the origin"], ans:3},
+      {q:"(3,2) is not the solution of inequality:", opts:["x+y>2","2x+y<5","2x+y<3","2x+y<5"], ans:2},
+      {q:"2x−8 < 0 is:", opts:["Equation","Identity","Inequality","Curve"], ans:2},
+      {q:"Which of the points satisfy inequality −x+3y<3:", opts:["(3,2)","(3,3)","(2,1)","(3,0)"], ans:2},
+      {q:"Solution set of inequality 2x<3 is:", opts:["(−∞, 3/2)","(3/2, −∞)","(−∞, ∞)","(−3/2, 3/2)"], ans:0},
+      {q:"Solution set of inequality 2x−3 ≥ 0 equals:", opts:["[3/2, ∞)","[3/2, −∞)","[∞, 3/2]","None of these"], ans:0},
+      {q:"x+2y>6 is not satisfied by:", opts:["(2,3)","(2,2)","(3,2)","(3,3)"], ans:1},
+      {q:"The associated equation of inequality x+2y<6 is:", opts:["x+2y=6","x−2y=6","x+2y=−6","x−2y=−6"], ans:0},
+      {q:"x = −1 is the solution of the in-inequality:", opts:["2x+3 ≤ 0","2x+3>0","x−2>0","2x+1>0"], ans:1},
+    ]
+  },
+  {
+    id: 11,
+    name: "Vectors",
+    tag: "CH 7 (Book 2)",
+    questions: [
+      {q:"For any vectors a and b projection of a on b is:", opts:["a·b/a","a·b/b","a·b/ab","a·b"], ans:1},
+      {q:"For a vector v=ai+bj+ck, projection of v along k is:", opts:["a","b","c","a+b+c"], ans:2},
+      {q:"Projection of r=ai+bj+ck on x-axis is:", opts:["a","b","c","√(a²+b²+c²)"], ans:0},
+      {q:"Vector product of two vectors is a:", opts:["scalar quantity","unit vector","vector quantity","null vector"], ans:2},
+      {q:"If a and b are two non-zero vectors, then axb =", opts:["bxa","axb","a·b","−bxa"], ans:3},
+      {q:"If i,j,k are unit vectors then k × j =", opts:["i","−i","1","0"], ans:1},
+      {q:"The position vector of a point P(−1,2,3) is:", opts:["i+2j+k","−i+2j+3k","i−2j−3k","−i−2j−3k"], ans:1},
+      {q:"Unit vector perpendicular to a and b is:", opts:["a·b/|a||b|","axb/|a||b|","axb/|axb|","|axb|"], ans:2},
+      {q:"The vectors u and v are parallel if angle between them is:", opts:["π/2","π","π/4","π/3"], ans:1},
+      {q:"i × i =", opts:["1","2","0","−1"], ans:2},
+      {q:"Vector triple product of three non-zero vectors a,b and c is denoted by:", opts:["ax(bxc)","a·(bxc)","a·(b+c)","a·(b·c)"], ans:0},
+      {q:"i · k =", opts:["1","0","−1","2"], ans:1},
+      {q:"2i·jx2k =", opts:["0","2","1","4"], ans:3},
+      {q:"|2k j i| is equal to:", opts:["1","−1","−2","2"], ans:2},
+      {q:"The value of i·i × k is:", opts:["0","−1","j","1"], ans:0},
+      {q:"(1/6)|u v w| is formula to calculate:", opts:["area triangle","area of parallelogram","volume of parallelepiped","volume of tetrahedron"], ans:3},
+      {q:"2ix2j·k equal to:", opts:["2","−2","4","−4"], ans:2},
+      {q:"If vector a and b have the same direction, then a·b is equal to:", opts:["ab","ab cosθ","ab sinθ","−ab"], ans:0},
+      {q:"a and b are perpendicular if:", opts:["axb=0","a·b=0","a=b","a=−b"], ans:1},
+      {q:"(i × j) × k:", opts:["0","i","j","k"], ans:0},
+      {q:"If vector u=2i+4j−7k and v=2i+6j+xk are perpendicular then x =", opts:["−4","4","28","0"], ans:1},
+      {q:"Length of the vector −i+2j+2k is:", opts:["3","4","5","6"], ans:0},
+      {q:"The direction cosines of x-axis are:", opts:["1,0,0","1,0,1","1,1,0","0,0,1"], ans:0},
+      {q:"i.2jx3k =", opts:["0","6","−6","none"], ans:1},
+      {q:"If OA=a, OB=b then AB is:", opts:["a+b","a·b","a−b","b+a"], ans:2},
+      {q:"Area of triangle with u and v as sides is:", opts:["uxv","(1/2)|uxv|","u·v","u·v"], ans:1},
+      {q:"A vector with magnitude 1 is called:", opts:["Null vector","Unit vector","Zero vector","Constant vector"], ans:1},
+      {q:"The unit vector of 2i+j:", opts:["2i−j","(2i+j)/√5","(2i+j)/3","(2i+j)/√5"], ans:1},
+      {q:"The unit vector of a vector v is:", opts:["v/|v|","v|v|","v/√|v|","v/√|v|"], ans:0},
+      {q:"Magnitude of vector 2i+3i+4k is:", opts:["29","√29","28","√28"], ans:1},
+      {q:"Length of vector −i+2j+2k is:", opts:["3","4","5","6"], ans:0},
+      {q:"If v = i+j−k then |v| =", opts:["√2","√3","√4","√5"], ans:1},
+      {q:"Magnitude of 2i−3j+k:", opts:["√13","√14","√15","√16"], ans:1},
+      {q:"If α,β,γ are direction cosines of a vector then cos²α+cos²β+cos²γ =", opts:["3","1","2","0"], ans:1},
+      {q:"The direction cosines of y-axis are:", opts:["(0,1,0)","(1,0,0)","(0,0,1)","(0,0,0)"], ans:0},
+      {q:"Angle between vectors 2i+3j+k and 2i−j−k is:", opts:["30°","45°","60°","90°"], ans:3},
+      {q:"i × k =", opts:["i","−i","j","−j"], ans:3},
+      {q:"i·(j×k) is equals:", opts:["0","1","−1","2"], ans:1},
+      {q:"[a b c] is equal to:", opts:["1","0","−1","2"], ans:1},
+      {q:"If any two vectors of scalar triple product are equal then its value is:", opts:["1","2","−1","0"], ans:3},
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let selectedChapters = new Set(CHAPTERS.map(c => c.id));
+let quizMode = 'all'; // 'all', 'shuffle', 'practice'
+let currentQuestions = [];
+let currentIndex = 0;
+let answers = {}; // index → chosen option index
+let correctCount = 0;
+let wrongCount = 0;
+let practiceMode = false;
+let shuffleMode = false;
+
+// ═══════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════
+function buildChapterGrid() {
+  const grid = document.getElementById('chapterGrid');
+  grid.innerHTML = '';
+  CHAPTERS.forEach(ch => {
+    const card = document.createElement('div');
+    card.className = 'chapter-card selected';
+    card.id = `ch-${ch.id}`;
+    card.onclick = () => toggleChapter(ch.id, card);
+    card.innerHTML = `
+      <div class="ch-number">${ch.tag}</div>
+      <div class="ch-name">${ch.name}</div>
+      <div class="ch-count">${ch.questions.length} questions</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function toggleChapter(id, card) {
+  if (selectedChapters.has(id)) {
+    selectedChapters.delete(id);
+    card.classList.remove('selected');
+  } else {
+    selectedChapters.add(id);
+    card.classList.add('selected');
+  }
+}
+
+function setMode(mode) {
+  quizMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+  if (mode === 'all') document.getElementById('modeAll').classList.add('selected');
+  if (mode === 'shuffle') document.getElementById('modeShuffle').classList.add('selected');
+  if (mode === 'practice') document.getElementById('modePractice').classList.add('selected');
+}
+
+function startQuiz(questionOverride) {
+  if (!questionOverride) {
+    let pool = [];
+    CHAPTERS.forEach(ch => {
+      if (selectedChapters.has(ch.id)) {
+        ch.questions.forEach(q => pool.push({...q, chapter: ch.name, tag: ch.tag}));
+      }
+    });
+    if (pool.length === 0) { alert('Select at least one chapter!'); return; }
+    if (quizMode === 'shuffle' || quizMode === 'practice') {
+      pool = pool.sort(() => Math.random() - 0.5);
+    }
+    currentQuestions = pool;
+  } else {
+    currentQuestions = questionOverride;
+  }
+
+  practiceMode = (quizMode === 'practice');
+  shuffleMode = (quizMode === 'shuffle');
+  currentIndex = 0;
+  answers = {};
+  correctCount = 0;
+  wrongCount = 0;
+
+  showScreen('quiz');
+  buildDots();
+  renderQuestion();
+  updateModeTag();
+}
+
+function updateModeTag() {
+  const tag = document.getElementById('modeTag');
+  if (practiceMode) tag.textContent = 'PRACTICE';
+  else if (shuffleMode) tag.textContent = 'SHUFFLE';
+  else tag.textContent = 'NORMAL';
+}
+
+// ═══════════════════════════════════════════════
+// QUIZ RENDERING
+// ═══════════════════════════════════════════════
+function buildDots() {
+  const wrap = document.getElementById('qNavDots');
+  wrap.innerHTML = '';
+  const MAX_DOTS = 80;
+  const show = Math.min(currentQuestions.length, MAX_DOTS);
+  for (let i = 0; i < show; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    dot.title = `Q${i+1}`;
+    dot.onclick = () => { if (answers[i] !== undefined || practiceMode) jumpTo(i); };
+    dot.id = `dot-${i}`;
+    wrap.appendChild(dot);
+  }
+}
+
+function updateDots() {
+  const MAX_DOTS = 80;
+  const show = Math.min(currentQuestions.length, MAX_DOTS);
+  for (let i = 0; i < show; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) continue;
+    dot.className = 'q-dot';
+    if (i === currentIndex) dot.classList.add('current');
+    else if (answers[i] !== undefined) {
+      const q = currentQuestions[i];
+      if (answers[i] === q.ans) dot.classList.add('answered-correct');
+      else dot.classList.add('answered-wrong');
+    }
+  }
+}
+
+function renderQuestion() {
+  const q = currentQuestions[currentIndex];
+  const total = currentQuestions.length;
+
+  document.getElementById('qNum').textContent = currentIndex + 1;
+  document.getElementById('qTotal').textContent = total;
+  document.getElementById('progressFill').style.width = `${((currentIndex+1)/total)*100}%`;
+  document.getElementById('qChapterTag').textContent = `${q.tag} · ${q.chapter}`;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('scoreCorrect').textContent = correctCount;
+  document.getElementById('scoreWrong').textContent = wrongCount;
+
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const labels = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span class="opt-text">${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  // Restore state if already answered
+  const fb = document.getElementById('feedbackBar');
+  fb.className = 'feedback-bar';
+  fb.style.display = 'none';
+
+  if (answers[currentIndex] !== undefined) {
+    applyAnswerState(answers[currentIndex], q.ans);
+  } else if (practiceMode) {
+    // In practice mode, show nothing until answered
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === total - 1 ? 'Finish →' : 'Next →';
+
+  updateDots();
+}
+
+function selectAnswer(chosen) {
+  if (answers[currentIndex] !== undefined && !practiceMode) return;
+  if (answers[currentIndex] !== undefined) return;
+
+  const q = currentQuestions[currentIndex];
+  const wasCorrect = chosen === q.ans;
+
+  if (answers[currentIndex] === undefined) {
+    answers[currentIndex] = chosen;
+    if (wasCorrect) correctCount++;
+    else wrongCount++;
+  }
+
+  applyAnswerState(chosen, q.ans);
+  document.getElementById('scoreCorrect').textContent = correctCount;
+  document.getElementById('scoreWrong').textContent = wrongCount;
+  updateDots();
+}
+
+function applyAnswerState(chosen, correct) {
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedbackBar');
+
+  if (chosen === correct) {
+    btns[chosen].classList.add('correct');
+    fb.className = 'feedback-bar correct-fb';
+    fb.innerHTML = '✓ Correct!';
+    fb.style.display = 'flex';
+  } else {
+    btns[chosen].classList.add('wrong');
+    btns[correct].classList.add('show-correct');
+    fb.className = 'feedback-bar wrong-fb';
+    fb.innerHTML = `✗ Wrong — Correct answer: <strong style="margin-left:8px">${['A','B','C','D'][correct]}. ${currentQuestions[currentIndex].opts[correct]}</strong>`;
+    fb.style.display = 'flex';
+  }
+}
+
+function navigate(dir) {
+  const total = currentQuestions.length;
+  const newIndex = currentIndex + dir;
+  if (newIndex < 0) return;
+  if (newIndex >= total) {
+    showResults();
+    return;
+  }
+  currentIndex = newIndex;
+  renderQuestion();
+}
+
+function jumpTo(i) {
+  currentIndex = i;
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════
+function showResults() {
+  showScreen('results');
+  const total = currentQuestions.length;
+  const answered = Object.keys(answers).length;
+  const pct = total > 0 ? Math.round((correctCount/total)*100) : 0;
+
+  let emoji = '😅', title = 'Keep Practicing!';
+  if (pct >= 90) { emoji = '🏆'; title = 'Outstanding!'; }
+  else if (pct >= 75) { emoji = '🎉'; title = 'Great Job!'; }
+  else if (pct >= 50) { emoji = '📚'; title = 'Good Effort!'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = `${pct}% score · ${answered} of ${total} questions answered`;
+  document.getElementById('statScore').textContent = pct + '%';
+  document.getElementById('statCorrect').textContent = correctCount;
+  document.getElementById('statWrong').textContent = wrongCount;
+
+  // Wrong review
+  const review = document.getElementById('reviewSection');
+  const wrongOnes = [];
+  Object.keys(answers).forEach(i => {
+    const q = currentQuestions[i];
+    if (answers[i] !== q.ans) wrongOnes.push({i: parseInt(i), q});
+  });
+
+  if (wrongOnes.length === 0) {
+    review.innerHTML = '<div style="text-align:center;color:var(--correct);font-size:18px;font-weight:700;padding:20px 0">🎯 Perfect score — no mistakes!</div>';
+    document.getElementById('retryWrongBtn').disabled = true;
+  } else {
+    const shown = wrongOnes.slice(0, 20);
+    review.innerHTML = `<div class="review-title">✗ Mistakes (${wrongOnes.length})</div>` +
+      shown.map(({i, q}) => `
+        <div class="review-item">
+          <div class="ri-tag">${q.tag} · ${q.chapter}</div>
+          <div class="ri-q"><strong>Q${parseInt(i)+1}:</strong> ${q.q}</div>
+          <div class="ri-your">Your answer: ${['A','B','C','D'][answers[i]]}. ${q.opts[answers[i]] || '(skipped)'}</div>
+          <div class="ri-correct">Correct: ${['A','B','C','D'][q.ans]}. ${q.opts[q.ans]}</div>
+        </div>
+      `).join('') + (wrongOnes.length > 20 ? `<div style="text-align:center;color:var(--muted);padding:12px">...and ${wrongOnes.length - 20} more</div>` : '');
+    document.getElementById('retryWrongBtn').disabled = false;
+  }
+}
+
+function restartSame() {
+  const pool = currentQuestions;
+  quizMode = 'all';
+  startQuiz(pool);
+}
+
+function retryWrong() {
+  const wrongOnes = [];
+  Object.keys(answers).forEach(i => {
+    const q = currentQuestions[i];
+    if (answers[i] !== q.ans) wrongOnes.push({...q});
+  });
+  if (wrongOnes.length === 0) return;
+  quizMode = 'all';
+  startQuiz(wrongOnes);
+}
+
+function goHome() {
+  showScreen('home');
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── INIT ──
+buildChapterGrid();
+</script>
+</body>
+</html>
