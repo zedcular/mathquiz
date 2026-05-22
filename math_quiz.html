@@ -1886,7 +1886,7 @@ function buildChapterGrid() {
   grid.innerHTML = '';
   CHAPTERS.forEach(ch => {
     const card = document.createElement('div');
-    card.className = 'chapter-card';
+    card.className = 'chapter-card' + (selectedChapters.has(ch.id) ? ' selected' : '');
     card.id = `ch-${ch.id}`;
     card.onclick = () => toggleChapter(ch.id, card);
 
@@ -2131,13 +2131,13 @@ function jumpTo(i) {
 // ═══════════════════════════════════════════════
 // PROGRESS TRACKING
 // ═══════════════════════════════════════════════
-function saveAttempt() {
+async function saveAttempt() {
   if (!currentUser) return;
   const total = currentQuestions.length;
   if (total === 0) return;
   const pct  = Math.round((correctCount / total) * 100);
   const mode = practiceMode ? 'practice' : shuffleMode ? 'shuffle' : 'normal';
-  db.from('quiz_attempts').insert({
+  const { error } = await db.from('quiz_attempts').insert({
     user_email:  currentUser.email,
     mode,
     total,
@@ -2145,6 +2145,10 @@ function saveAttempt() {
     score_pct:   pct,
     chapter_ids: [...selectedChapters]
   });
+  if (error) {
+    console.error('[saveAttempt] Supabase insert failed:', error);
+    showToast('Could not save attempt: ' + error.message, 'error');
+  }
   updateChapterStats();
 }
 
@@ -2188,9 +2192,9 @@ async function loadProgress() {
 // ═══════════════════════════════════════════════
 // RESULTS
 // ═══════════════════════════════════════════════
-function showResults() {
-  saveAttempt();
+async function showResults() {
   showScreen('results');
+  await saveAttempt();
   const total = currentQuestions.length;
   const answered = Object.keys(answers).length;
   const pct = total > 0 ? Math.round((correctCount/total)*100) : 0;
