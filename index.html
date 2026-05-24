@@ -1094,7 +1094,7 @@ async function handleSignedIn() {
     .select('*')
     .eq('user_email', email);
   console.log('[handleSignedIn] devices:', devices, 'error:', devicesErr);
-
+console.log('[devices result]', devices, devicesErr);
   // If device query fails, let the user in rather than blocking them.
   if (devicesErr) {
     console.log('[handleSignedIn] device query failed — entering quiz anyway');
