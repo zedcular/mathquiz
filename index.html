@@ -1056,24 +1056,26 @@ let signingIn    = false; // guard against concurrent handleSignedIn calls
 // paths call handleSignedIn() simultaneously and one hits the UNIQUE device constraint,
 // errors out, and calls signOut() — which sent the user back to login forever.
 db.auth.onAuthStateChange(async (event, session) => {
-db.auth.onAuthStateChange(async (event, session) => {
   console.log('[AUTH]', event, session ? 'has session' : 'no session');
   if (event === 'SIGNED_OUT') {
     currentUser = null;
-    signingIn = false;
+    signingIn   = false;
     showScreen('login');
-    resetLoginForm();
+    const errEl = document.getElementById('loginError');
+    if (!errEl || errEl.style.display === 'none') resetLoginForm();
+    return;
+  }
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    console.log('[AUTH] signingIn:', signingIn, 'currentUser:', !!currentUser);
+    if (signingIn || currentUser) { console.log('[AUTH] skipping — already handled'); return; }
+    signingIn   = true;
+    currentUser = session.user;
+    await handleSignedIn();
+    signingIn   = false;
     return;
   }
   if (event === 'INITIAL_SESSION' && !session) {
     showScreen('login');
-    return;
-  }
-  if (session && !currentUser && !signingIn) {
-    signingIn = true;
-    currentUser = session.user;
-    await handleSignedIn();
-    signingIn = false;
   }
 });
 
@@ -1092,7 +1094,7 @@ async function handleSignedIn() {
     .select('*')
     .eq('user_email', email);
   console.log('[handleSignedIn] devices:', devices, 'error:', devicesErr);
-console.log('[devices result]', devices, devicesErr);
+
   // If device query fails, let the user in rather than blocking them.
   if (devicesErr) {
     console.log('[handleSignedIn] device query failed — entering quiz anyway');
@@ -2207,8 +2209,5 @@ function showScreen(id) {
 // ── INIT ──
 // Chapter grid is built inside enterQuiz() after successful auth.
 </script>
-<div style="text-align:center;padding:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6b80;letter-spacing:1px;">
-  Follow us → <a href="https://instagram.com/zed.flo" target="_blank" style="color:#6c63ff;text-decoration:none;">@zed.flo</a>
-</div>
 </body>
 </html>
