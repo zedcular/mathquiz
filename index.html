@@ -1056,26 +1056,24 @@ let signingIn    = false; // guard against concurrent handleSignedIn calls
 // paths call handleSignedIn() simultaneously and one hits the UNIQUE device constraint,
 // errors out, and calls signOut() — which sent the user back to login forever.
 db.auth.onAuthStateChange(async (event, session) => {
+db.auth.onAuthStateChange(async (event, session) => {
   console.log('[AUTH]', event, session ? 'has session' : 'no session');
   if (event === 'SIGNED_OUT') {
     currentUser = null;
-    signingIn   = false;
+    signingIn = false;
     showScreen('login');
-    const errEl = document.getElementById('loginError');
-    if (!errEl || errEl.style.display === 'none') resetLoginForm();
-    return;
-  }
-  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-    console.log('[AUTH] signingIn:', signingIn, 'currentUser:', !!currentUser);
-    if (signingIn || currentUser) { console.log('[AUTH] skipping — already handled'); return; }
-    signingIn   = true;
-    currentUser = session.user;
-    await handleSignedIn();
-    signingIn   = false;
+    resetLoginForm();
     return;
   }
   if (event === 'INITIAL_SESSION' && !session) {
     showScreen('login');
+    return;
+  }
+  if (session && !currentUser && !signingIn) {
+    signingIn = true;
+    currentUser = session.user;
+    await handleSignedIn();
+    signingIn = false;
   }
 });
 
